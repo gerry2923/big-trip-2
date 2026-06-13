@@ -418,6 +418,10 @@ main {
     -webkit-box-shadow: 0 11px 20px rgba(0, 0, 0, 0.043);
             box-shadow: 0 11px 20px rgba(0, 0, 0, 0.043); }
 
+.event--hidden {
+  display: none;
+}
+
 .event__header {
   display: -ms-flexbox;
   display: flex;
