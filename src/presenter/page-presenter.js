@@ -6,11 +6,13 @@ export default class PagePresenter {
   #mainContainer = null;
   #headerPresenter = null;
   #mainContentPresenter = null;
+  #pointsModel = null;
 
 
-  constructor({headerContainer, mainContainer}) {
+  constructor({headerContainer, mainContainer, pointsModel}) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
+    this.#pointsModel = pointsModel;
   }
 
   setHeader() {
@@ -19,7 +21,11 @@ export default class PagePresenter {
   }
 
   setMain() {
-    this.#mainContentPresenter = new MainPresenter(this.#mainContainer);
+    this.#mainContentPresenter = new MainPresenter({
+      mainContainer: this.#mainContainer,
+      pointsModel: this.#pointsModel,
+    });
+
     this.#mainContentPresenter.init();
   }
 

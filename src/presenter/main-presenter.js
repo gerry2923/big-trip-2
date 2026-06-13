@@ -9,10 +9,14 @@ export default class MainPresenter {
   #mainContainer = null;
   #pointListView = null;
   #sortView = null;
+  #pointsModel = null;
+  #points = null;
   listItem = null;
 
-  constructor(mainContainer) {
+  constructor({mainContainer, pointsModel}) {
     this.#mainContainer = mainContainer;
+    this.#pointsModel = pointsModel; // массив с объектами
+    this.#points = this.#pointsModel.getPoints();
   }
 
   setSort() {
@@ -24,11 +28,20 @@ export default class MainPresenter {
     this.#pointListView = new PointListView();
     render(this.#pointListView, this.#mainContainer);
 
-    for(let i = 0; i < 3; i++) {
+    const pointsNumber = this.#pointsModel.getPoints().length;
+    // TO DO: организовать передачу объектов в представлениях
+    // в представления передаются точки, не модель
+    for(let i = 0; i < pointsNumber - 1; i++) {
       const hidden = (i !== 1);
+
       render(new PointListItemView(), this.#pointListView.getElement());
-      render(new EditPointView(hidden), this.#pointListView.getElement().lastElementChild);
-      render(new PointView(), this.#pointListView.getElement().lastElementChild);
+
+      render(new EditPointView({
+        point: this.#points[i],
+        isHidden: hidden,
+      }), this.#pointListView.getElement().lastElementChild);
+
+      render(new PointView(this.#points[i]), this.#pointListView.getElement().lastElementChild);
     }
   }
 
