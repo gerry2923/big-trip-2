@@ -1,4 +1,5 @@
 import HeaderPresenter from './header-presenter';
+import MainPresenter from './main-presenter';
 
 export default class PagePresenter {
   #headerContainer = null;
@@ -17,13 +18,13 @@ export default class PagePresenter {
     this.#headerPresenter.init();
   }
 
-  mainContent() {
+  setMain() {
     this.#mainContentPresenter = new MainPresenter(this.#mainContainer);
-    this.#mainContainer.init();
+    this.#mainContentPresenter.init();
   }
 
   init() {
     this.setHeader();
-    this.mainContent();
+    this.setMain();
   }
 }

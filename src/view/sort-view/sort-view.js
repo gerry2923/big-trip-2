@@ -1,4 +1,5 @@
 import { createSortTemplate } from './sort-template';
+import { createElement } from '../../render';
 
 export default class SortView {
   getTemplate() {
@@ -7,7 +8,7 @@ export default class SortView {
 
   getElement() {
     if(!this.element) {
-      this.element = this.getTemplate();
+      this.element = createElement(this.getTemplate());
     }
 
     return this.element;

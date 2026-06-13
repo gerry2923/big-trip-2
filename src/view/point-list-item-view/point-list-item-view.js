@@ -1,10 +1,9 @@
+import { createPointListItemTemplate } from '../point-list-item-view/point-list-item-template';
 import { createElement } from '../../render';
-import { createPointListTemplate } from './point-list-template';
 
-export default class PointListView {
-
+export default class PointListItemView {
   getTemplate() {
-    return createPointListTemplate();
+    return createPointListItemTemplate();
   }
 
   getElement() {

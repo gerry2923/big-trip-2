@@ -10,7 +10,7 @@ clearElement(siteHeaderElement);
 
 const contentPresenter = new PagePresenter({
   headerContainer: siteHeaderElement,
-  pointsContainer: siteMainElement
+  mainContainer: siteMainElement
 });
 
 contentPresenter.init();
