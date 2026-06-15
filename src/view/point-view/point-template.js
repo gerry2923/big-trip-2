@@ -1,17 +1,19 @@
+import { getDateDifference, getCustomTime, getMonthDay, changeToFirstCapitalLetter } from '../../utils/common';
+
 export const createPointTemplate = (point) => `
               <div class="event">
-                <time class="event__date" datetime="${point.dateFrom}">MAR 18</time>
+                <time class="event__date" datetime="${point.dateFrom}">${getMonthDay(point.dateFrom)}</time>
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">Taxi Amsterdam</h3>
+                <h3 class="event__title">${changeToFirstCapitalLetter(point.type)} TODOOOO !!!!!! Amsterdam</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="${point.dateFrom}">10:30</time>
+                    <time class="event__start-time" datetime="${point.dateFrom}">${getCustomTime(point.dateFrom)}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="${point.dateTo}">11:00</time>
+                    <time class="event__end-time" datetime="${point.dateTo}">${getCustomTime(point.dateTo)}</time>
                   </p>
-                  <p class="event__duration">30M</p>
+                  <p class="event__duration">${getDateDifference(point.dateFrom, point.dateTo)}</p>
                 </div>
                 <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${point.basePrice}</span>
