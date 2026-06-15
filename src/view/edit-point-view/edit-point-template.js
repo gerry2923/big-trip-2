@@ -1,4 +1,4 @@
-export const createEditPointTemplate = (hidden) => `
+export const createEditPointTemplate = (point,hidden) => `
   <form class="event event--edit ${hidden ? 'event--hidden' : ''}" action="#" method="post">
                 <header class="event__header">
                   <div class="event__type-wrapper">

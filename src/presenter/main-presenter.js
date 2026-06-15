@@ -32,16 +32,22 @@ export default class MainPresenter {
     // TO DO: организовать передачу объектов в представлениях
     // в представления передаются точки, не модель
     for(let i = 0; i < pointsNumber - 1; i++) {
+
       const hidden = (i !== 1);
 
       render(new PointListItemView(), this.#pointListView.getElement());
+      const pointContainer = this.#pointListView.getElement().lastElementChild;
+
+      if(!pointContainer) {
+        throw new Error('В списке нет элементов списка\n');
+      }
 
       render(new EditPointView({
         point: this.#points[i],
         isHidden: hidden,
-      }), this.#pointListView.getElement().lastElementChild);
+      }), pointContainer);
 
-      render(new PointView(this.#points[i]), this.#pointListView.getElement().lastElementChild);
+      render(new PointView(this.#points[i]), pointContainer);
     }
   }
 

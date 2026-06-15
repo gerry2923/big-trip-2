@@ -7,12 +7,16 @@ export default class PagePresenter {
   #headerPresenter = null;
   #mainContentPresenter = null;
   #pointsModel = null;
+  #offers = null;
+  #destinations = null;
 
 
-  constructor({headerContainer, mainContainer, pointsModel}) {
+  constructor({headerContainer, mainContainer, pointsModel, offers, destinations}) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
     this.#pointsModel = pointsModel;
+    this.#offers = offers;
+    this.#destinations = destinations;
   }
 
   setHeader() {
