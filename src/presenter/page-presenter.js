@@ -9,31 +9,40 @@ export default class PagePresenter {
   #pointsModel = null;
   #offers = null;
   #destinations = null;
+  #isEmptyPage = false;
 
-  constructor({headerContainer, mainContainer, pointsModel, offers, destinations}) {
+  constructor({ headerContainer, mainContainer, pointsModel, offers, destinations }) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
 
     this.#pointsModel = pointsModel;
     this.#offers = offers;
     this.#destinations = destinations;
+
+    this.#isEmptyPage = this.#pointsModel.getPoints().length === 0;
   }
 
   setHeader() {
-    this.#headerPresenter = new HeaderPresenter(this.#headerContainer);
+    this.#headerPresenter = new HeaderPresenter({
+      headerContainer: this.#headerContainer,
+      isNoData: this.#isEmptyPage,
+    });
     this.#headerPresenter.init();
   }
 
   setMain() {
 
-    this.#mainContentPresenter = new MainPresenter({
-      mainContainer: this.#mainContainer,
-      pointsModel: this.#pointsModel,
-      offers: this.#offers,
-      destinations: this.#destinations,
-    });
+    if (!this.#isEmptyPage) {
+      this.#mainContentPresenter = new MainPresenter({
+        mainContainer: this.#mainContainer,
+        pointsModel: this.#pointsModel,
+        offers: this.#offers,
+        destinations: this.#destinations,
+      });
 
-    this.#mainContentPresenter.init();
+      this.#mainContentPresenter.init();
+    }
+
   }
 
   init() {
