@@ -3,13 +3,15 @@ import { createElement } from '../../render';
 
 export default class EditPointView {
   #hidden = null;
+  #point = null;
 
-  constructor(hidden) {
-    this.#hidden = hidden;
+  constructor({point, isHidden}) {
+    this.#hidden = isHidden;
+    this.#point = point;
   }
 
   getTemplate() {
-    return createEditPointTemplate(this.#hidden);
+    return createEditPointTemplate(this.#point, this.#hidden);
   }
 
   getElement() {

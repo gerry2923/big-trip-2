@@ -9,9 +9,11 @@ export default class HeaderPresenter {
   #tripInfoView = null;
   #filterView = null;
   #buttonNewView = null;
+  #isHeaderEmpty = null;
 
-  constructor(headerContainer) {
+  constructor({ headerContainer, isNoData }) {
     this.#headerContainer = headerContainer;
+    this.isHeaderEmpty = isNoData;
   }
 
   /*
@@ -20,9 +22,17 @@ export default class HeaderPresenter {
     3. фильтр
     4. кнопка
   */
-  setHeader() {
+
+  setTripInfo() {
     this.#tripInfoView = new TripInfoView(); // одновременно дата, число и стоимость будут
     render(this.#tripInfoView, this.#headerContainer);
+  }
+
+  setHeader() {
+
+    if (!this.#isHeaderEmpty) {
+      this.setTripInfo();
+    }
 
     this.#filterView = new FilterView();
     render(this.#filterView, this.#headerContainer);
