@@ -2,21 +2,24 @@ import { render } from '../render';
 import SortView from '../view/sort-view/sort-view';
 import PointListView from '../view/point-list-view/point-list-view';
 import PointListItemView from '../view/point-list-item-view/point-list-item-view';
-import PointView from '../view/point-view/point-view';
-import EditPointView from '../view/edit-point-view/edit-point-view';
+import PointPresenter from './point-presenter';
 
 export default class MainPresenter {
   #mainContainer = null;
   #pointListView = null;
   #sortView = null;
   #pointsModel = null;
-  #points = null;
+  #pointPresenter = null;
+  #offers = null;
+  #destinations = null;
+  #pointPresenters = new Map();
   listItem = null;
 
-  constructor({mainContainer, pointsModel}) {
+  constructor({mainContainer, pointsModel, offers, destinations}) {
     this.#mainContainer = mainContainer;
-    this.#pointsModel = pointsModel; // массив с объектами
-    this.#points = this.#pointsModel.getPoints();
+    this.#pointsModel = pointsModel;
+    this.#offers = offers;
+    this.#destinations = destinations;
   }
 
   setSort() {
@@ -25,30 +28,37 @@ export default class MainPresenter {
   }
 
   setList() {
+    // 1. создаем элемент ul для содержания элементов списка
     this.#pointListView = new PointListView();
     render(this.#pointListView, this.#mainContainer);
 
-    const pointsNumber = this.#pointsModel.getPoints().length;
-    // TO DO: организовать передачу объектов в представлениях
-    // в представления передаются точки, не модель
-    for(let i = 0; i < pointsNumber - 1; i++) {
+    // 2. сохранили созданный элемент как контейнет для элеметов списка (Одинаковый у всех элементов списка)
+    const listItem = this.#pointListView.getElement();
 
-      const hidden = (i !== 1);
+    // 3. ПРОБЕГАЕМСЯ ПО ВСЕМ ТОЧКАМ МАРШРУТА создаем set из точек
+    this.#pointsModel.getPoints().forEach((pointItem) => {
+      // 3.1. создали элемент li и отрисовали его
+      render(new PointListItemView(), listItem);
 
-      render(new PointListItemView(), this.#pointListView.getElement());
       const pointContainer = this.#pointListView.getElement().lastElementChild;
 
       if(!pointContainer) {
         throw new Error('В списке нет элементов списка\n');
       }
+      // 3.2. создали презентер
+      this.#pointPresenter = new PointPresenter({
+        pointContainer: pointContainer,
+        point: pointItem,
+        offers: this.#offers,
+        destinations: this.#destinations,
+      });
+      // 3.3. инициировали и отрисовали точку
+      this.#pointPresenter.init();
 
-      render(new EditPointView({
-        point: this.#points[i],
-        isHidden: hidden,
-      }), pointContainer);
+      // 3.4. сохранили точку в карте
+      this.#pointPresenters.set(pointItem.id, this.#pointPresenter);
 
-      render(new PointView(this.#points[i]), pointContainer);
-    }
+    });
   }
 
   init() {

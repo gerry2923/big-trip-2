@@ -10,10 +10,10 @@ export default class PagePresenter {
   #offers = null;
   #destinations = null;
 
-
   constructor({headerContainer, mainContainer, pointsModel, offers, destinations}) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
+
     this.#pointsModel = pointsModel;
     this.#offers = offers;
     this.#destinations = destinations;
@@ -25,15 +25,23 @@ export default class PagePresenter {
   }
 
   setMain() {
+
     this.#mainContentPresenter = new MainPresenter({
       mainContainer: this.#mainContainer,
       pointsModel: this.#pointsModel,
+      offers: this.#offers,
+      destinations: this.#destinations,
     });
 
     this.#mainContentPresenter.init();
   }
 
   init() {
+    // TODO:
+    // страница загружается,
+    // нет данных для отображения,
+    // ошибка загрузки
+
     this.setHeader();
     this.setMain();
   }
