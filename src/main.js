@@ -32,7 +32,7 @@ if (sitePointsModel.getPoints().length) {
   const emptyPagePresenter = new EmptyPagePresenter({
     headerContainer: siteHeaderElement,
     mainContainer: siteMainElement,
-    message: 'Давайте добавим хоть одну точку маршрута ',
+    message: 'Click New Event to create your first point',
     headerMode: 3
   });
 

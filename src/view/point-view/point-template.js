@@ -1,12 +1,28 @@
 import { getDateDifference, getCustomTime, getMonthDay, changeToFirstCapitalLetter } from '../../utils/common';
 
+const getOffersString = (point) => {
+  let offers = "";
+  
+  point.offers.forEach((offer) => {
+    console.log()
+    offers += `
+      <li class="event__offer">
+       <span class="event__offer-title">${offer.title}</span>
+          &plus;&euro;&nbsp;
+       <span class="event__offer-price">${offer.price}</span>
+      </li>`
+    });
+
+  return offers; 
+}; 
+
 export const createPointTemplate = (point) => `
-              <div class="event">
-                <time class="event__date" datetime="${point.dateFrom}">${getMonthDay(point.dateFrom)}</time>
-                <div class="event__type">
-                  <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
+  <div class="event">
+    <time class="event__date" datetime="${point.dateFrom}">${getMonthDay(point.dateFrom)}</time>
+      <div class="event__type">
+        <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${changeToFirstCapitalLetter(point.type)} TODOOOO !!!!!! Amsterdam</h3>
+                <h3 class="event__title">${changeToFirstCapitalLetter(point.type)} ${point.destination}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${point.dateFrom}">${getCustomTime(point.dateFrom)}</time>
@@ -20,11 +36,7 @@ export const createPointTemplate = (point) => `
                 </p>
                 <h4 class="visually-hidden">Offers:</h4>
                 <ul class="event__selected-offers">
-                  <li class="event__offer">
-                    <span class="event__offer-title">Order Uber</span>
-                    &plus;&euro;&nbsp;
-                    <span class="event__offer-price">20</span>
-                  </li>
+                  ${getOffersString(point)} 
                 </ul>
                 <button class="event__favorite-btn ${point.isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
                   <span class="visually-hidden">Add to favorite</span>
