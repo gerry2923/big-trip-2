@@ -12,7 +12,7 @@ export default class PointPresenter {
   #editPointComponent = null;
   #pointComponent = null;
   #pointOffers = null;
-  #isComponentHidden = true;
+  #isComponentHidden = false;
   
   constructor({pointContainer, point, offers, destinations}) {
 
@@ -21,7 +21,6 @@ export default class PointPresenter {
     this.#offers = offers;
     this.#destinations = destinations;
   }
-
 
   checkOfferType(offer) {
     return offer.type === this.#pointData.type;

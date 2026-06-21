@@ -3,7 +3,8 @@ import PagePresenter from './presenter/page-presenter';
 import { clearElement } from './utils/common';
 import { offers } from './moks/mockOffers';
 import { destinationPoints } from './moks/mockDestination';
-import EmptyPagePresenter from './presenter/empty-page-presenter';
+import { MESSAGES } from './const';
+import NewPagePresenter from './presenter/new-page-presenter';
 
 const siteBodyElement = document.querySelector('.page-body');
 const siteHeaderElement = siteBodyElement.querySelector('.trip-main');
@@ -29,13 +30,13 @@ if (sitePointsModel.getPoints().length) {
 
   contentPresenter.init();
 } else {
-  const emptyPagePresenter = new EmptyPagePresenter({
+  const newPagePresenter = new NewPagePresenter({
     headerContainer: siteHeaderElement,
     mainContainer: siteMainElement,
-    message: 'Click New Event to create your first point',
+    message: MESSAGES.addNew,
     headerMode: 3
   });
 
-  emptyPagePresenter.init();
+  newPagePresenter.init();
 }
 

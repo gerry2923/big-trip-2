@@ -1,7 +1,7 @@
 import { createElement } from '../../render';
-import { createMessageTemplate } from './message-template';
+import { createNewPointTemplate } from './new-point-template';
 
-export default class MessageView {
+export default class NewPointView {
   #message = null;
 
   constructor(message) {
@@ -9,7 +9,7 @@ export default class MessageView {
   }
 
   getTemplate() {
-    return createMessageTemplate(this.#message);
+    return createNewPointTemplate(this.#message);
   }
 
   getElement() {

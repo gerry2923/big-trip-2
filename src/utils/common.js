@@ -100,16 +100,3 @@ export const changeToFirstCapitalLetter = (incomingString) => {
   return incomingString.charAt(0).toUpperCase() + incomingString.slice(1);
 
 };
-
-
-/**
- * Возвращает элементы из items, у которых item[idField] есть в ids.
- * @param {Array} ids - массив значений id (числа или строки)
- * @param {Array} items - массив объектов/элементов
- * @param {string} [idField='id'] - имя поля в объекте для сравнения
- * @returns {Array} - массив совпадающих элементов
- */
-export const pickByKey = (ids, items, idField = 'id') => {
-  const idSet = new Set(ids);
-  return items.filter(item => idSet.has(item[idField]));
-}
