@@ -9,14 +9,14 @@ export default class FilterPresenter {
       this.#headerContainer = headerContainer;
     }
 
-    setFilter() {
+    renderFilter() {
       this.#filterComponent = new FilterView();
       render(this.#filterComponent, this.#headerContainer);
 
     }
 
     init() {
-      this.setFilter();    
+      this.renderFilter();    
     }
 }
 

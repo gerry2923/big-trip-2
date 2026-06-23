@@ -1,6 +1,8 @@
 import HeaderPresenter from './header-presenter';
 import MainPresenter from './main-presenter';
-
+/**
+ * Этот презентер работает, когда есть данные для отображения
+ */
 export default class PagePresenter {
   #headerContainer = null;
   #mainContainer = null;
@@ -41,11 +43,7 @@ export default class PagePresenter {
   }
 
   init() {
-    // TODO:
-    // страница загружается,
-    // нет данных для отображения,
-    // ошибка загрузки
-
+    
     this.setHeader();
     this.setMain();
   }

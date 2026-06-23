@@ -1,22 +1,8 @@
-import { createElement } from '../../render';
+import AbstractView from '../../framework/view/abstract-view';
 import { createTripInfoTemplate } from './trip-info-template';
 
-export default class TripInfoView {
-  getTemplate() {
+export default class TripInfoView extends AbstractView {
+  get template() {
     return createTripInfoTemplate();
   }
-
-  getElement() {
-    if(!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
-
-
 }

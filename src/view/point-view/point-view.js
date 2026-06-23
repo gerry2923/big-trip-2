@@ -1,24 +1,15 @@
+import AbstractView from '../../framework/view/abstract-view';
 import { createPointTemplate } from './point-template';
-import { createElement } from '../../render';
 
-export default class PointView {
+export default class PointView extends AbstractView {
   #point = null;
   constructor(point) {
+    super();
     this.#point = point;
   }
 
-  getTemplate() {
+  get template() {
     return createPointTemplate(this.#point);
   }
 
-  getElement() {
-    if(!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
 }

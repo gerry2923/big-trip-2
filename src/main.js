@@ -18,7 +18,8 @@ clearElement(siteHeaderElement);
 // TODO-1: если данные в процессе загрузки mode - 1
 // TODO-2: если данные не загрузились mode - 2
 // TODO-3: если добавленных точек нет mode - 3
-
+ 
+// если есть данные для отображения
 if (sitePointsModel.getPoints().length) {
   const contentPresenter = new PagePresenter({
     headerContainer: siteHeaderElement,
@@ -29,6 +30,7 @@ if (sitePointsModel.getPoints().length) {
   });
 
   contentPresenter.init();
+// если данных для отображения нет
 } else {
   const newPagePresenter = new NewPagePresenter({
     headerContainer: siteHeaderElement,

@@ -3,11 +3,12 @@ import { render } from '../render';
 import TripInfoView from '../view/trip-info-view/trip-info-view';
 import FilterView from '../view/filter-view/filter-view';
 import ButtonNewView from '../view/button-new-view/button-new-view';
+import FilterPresenter from './filter-presenter';
 
 export default class HeaderPresenter {
   #headerContainer = null;
   #tripInfoView = null;
-  #filterView = null;
+  #filterPresenter = null;
   #buttonNewView = null;
 
   constructor({ headerContainer }) {
@@ -26,8 +27,8 @@ export default class HeaderPresenter {
     this.#tripInfoView = new TripInfoView(); // одновременно дата, число и стоимость будут
     render(this.#tripInfoView, this.#headerContainer);
 
-    this.#filterView = new FilterView();
-    render(this.#filterView, this.#headerContainer);
+    this.#filterPresenter = new FilterPresenter(this.#headerContainer);
+    this.#filterPresenter.init();
 
     this.#buttonNewView = new ButtonNewView();
     render(this.#buttonNewView, this.#headerContainer);
