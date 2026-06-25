@@ -1,19 +1,18 @@
 
-import { render } from '../render';
+import { render } from '../framework/render';
 import TripInfoView from '../view/trip-info-view/trip-info-view';
 import FilterView from '../view/filter-view/filter-view';
 import ButtonNewView from '../view/button-new-view/button-new-view';
+import FilterPresenter from './filter-presenter';
 
 export default class HeaderPresenter {
   #headerContainer = null;
   #tripInfoView = null;
-  #filterView = null;
+  #filterPresenter = null;
   #buttonNewView = null;
-  #isHeaderEmpty = null;
 
-  constructor({ headerContainer, isNoData }) {
+  constructor({ headerContainer }) {
     this.#headerContainer = headerContainer;
-    this.isHeaderEmpty = isNoData;
   }
 
   /*
@@ -23,19 +22,13 @@ export default class HeaderPresenter {
     4. кнопка
   */
 
-  setTripInfo() {
+  setHeader() {
+    
     this.#tripInfoView = new TripInfoView(); // одновременно дата, число и стоимость будут
     render(this.#tripInfoView, this.#headerContainer);
-  }
 
-  setHeader() {
-
-    if (!this.#isHeaderEmpty) {
-      this.setTripInfo();
-    }
-
-    this.#filterView = new FilterView();
-    render(this.#filterView, this.#headerContainer);
+    this.#filterPresenter = new FilterPresenter(this.#headerContainer);
+    this.#filterPresenter.init();
 
     this.#buttonNewView = new ButtonNewView();
     render(this.#buttonNewView, this.#headerContainer);
