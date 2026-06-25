@@ -1,5 +1,5 @@
 
-import { render } from '../render';
+import { render } from '../framework/render';
 import TripInfoView from '../view/trip-info-view/trip-info-view';
 import FilterView from '../view/filter-view/filter-view';
 import ButtonNewView from '../view/button-new-view/button-new-view';
