@@ -21,13 +21,13 @@ export default class NewPagePresenter {
   }
 
   // новые точки еще не заданы, поэтому нет заголовка с точками маршрута
-  setNoTripInfoHeader() {
+  renderNoTripInfoHeader() {
     // throw new Error('нет ни одной добавленной точки');
 
     // this.#filterView = new FilterView();
     // render(this.#filterView, this.#headerContainer);
 
-    this.#filterPresenter = new FilterPresenter(this.#headerContainer);
+    this.#filterPresenter = new FilterPresenter({headerContainer: this.#headerContainer, isListEmpty: true});
     this.#filterPresenter.init();
 
     this.#buttonNewView = new ButtonNewView();
@@ -35,7 +35,7 @@ export default class NewPagePresenter {
   }
 
   // полностью не активные кнопки всей страницы
-  setDisabledHeader() {
+  renderDisabledHeader() {
     throw new Error('данные загружаются');
   }
   // неактивная кнопка добавления новой точки
@@ -43,14 +43,14 @@ export default class NewPagePresenter {
     throw new Error('произошла какая-то ошибка при загрузке');
   }
 
-  setMain() {
+  renderMain() {
     this.#emptyMain = new NewPointView(this.#message);
     render(this.#emptyMain, this.#mainContainer)
   }
 
   init() {
-    this.setNoTripInfoHeader();
-    this.setMain();
+    this.renderNoTripInfoHeader();
+    this.renderMain();
   }
 
 }
