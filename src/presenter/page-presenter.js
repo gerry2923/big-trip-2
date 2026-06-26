@@ -24,6 +24,8 @@ export default class PagePresenter {
 
   setHeader() {
     this.#headerPresenter = new HeaderPresenter({
+      pointsModel: this.#pointsModel,
+      destinations: this.#destinations,
       headerContainer: this.#headerContainer,
     });
     this.#headerPresenter.init();

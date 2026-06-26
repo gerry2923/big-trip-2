@@ -20,7 +20,7 @@ clearElement(siteHeaderElement);
 // TODO-3: если добавленных точек нет mode - 3
  
 // если есть данные для отображения
-if (sitePointsModel.getPoints().length) {
+if (sitePointsModel.points.length) {
   const contentPresenter = new PagePresenter({
     headerContainer: siteHeaderElement,
     mainContainer: siteMainElement,

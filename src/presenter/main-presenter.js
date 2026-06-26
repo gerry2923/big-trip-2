@@ -33,7 +33,7 @@ export default class MainPresenter {
     render(this.#pointListComponent, this.#mainContainer);
 
     // 2. ПРОБЕГАЕМСЯ ПО ВСЕМ ТОЧКАМ МАРШРУТА создаем set из представлений[presenter] точек
-    this.#pointsModel.getPoints().forEach((pointItem) => {
+    this.#pointsModel.points.forEach((pointItem) => {
       this.#renderPoint(pointItem);
     });
   }

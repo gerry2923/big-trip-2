@@ -9,10 +9,14 @@ export default class HeaderPresenter {
   #headerContainer = null;
   #tripInfoView = null;
   #filterPresenter = null;
+  #poinsModel = null;
+  #destination = null;
   #buttonNewView = null;
 
-  constructor({ headerContainer }) {
+  constructor({ pointsModel, destinations, headerContainer }) {
     this.#headerContainer = headerContainer;
+    this.#poinsModel = pointsModel;
+    this.#destination = destinations;
   }
 
   /*
@@ -21,21 +25,28 @@ export default class HeaderPresenter {
     3. фильтр
     4. кнопка
   */
+  #renderTripInfo() {
 
-  setHeader() {
-    
-    this.#tripInfoView = new TripInfoView(); // одновременно дата, число и стоимость будут
+    const destinationPoints = [];
+    const totalPrice = '';
+
+    this.#tripInfoView = new TripInfoView({destinationPoints: [], price: totalPrice}); // одновременно дата, число и стоимость будут
     render(this.#tripInfoView, this.#headerContainer);
+  }
 
-    this.#filterPresenter = new FilterPresenter(this.#headerContainer);
+  #renderFilter() {
+    this.#filterPresenter = new FilterPresenter({headerContainer: this.#headerContainer});
     this.#filterPresenter.init();
+  }
 
+  #renderButtonNewPoint() {
     this.#buttonNewView = new ButtonNewView();
     render(this.#buttonNewView, this.#headerContainer);
-
   }
 
   init() {
-    this.setHeader();
+    this.#renderTripInfo();
+    this.#renderFilter();
+    this.#renderButtonNewPoint();
   }
 }
