@@ -22,10 +22,10 @@ export default class PointPresenter {
     }
   };
 
-  constructor({ pointContainer, point, offers, destinations }) {
+  constructor({ pointContainer, offers, destinations }) {
 
     this.#pointContainer = pointContainer;
-    this.#pointData = point;
+    // this.#pointData = point;
     this.#offers = offers;
     this.#destinations = destinations;
   }
@@ -80,7 +80,8 @@ export default class PointPresenter {
     render(this.pointComponent, this.#pointContainer)
   }
 
-  init() {
+  init(point) {
+    this.#pointData = point;
     this.renderPoint();
   }
 }
