@@ -34,30 +34,47 @@ export default class MainPresenter {
 
     // 2. ПРОБЕГАЕМСЯ ПО ВСЕМ ТОЧКАМ МАРШРУТА создаем set из представлений[presenter] точек
     this.#pointsModel.points.forEach((pointItem) => {
-      this.#renderPoint(pointItem);
+      this.renderPoint(pointItem);
     });
   }
 
-  #renderPoint(pointItem) {
+  renderPoint(pointItem) {
+
     // 3.1. создали элемент li
     render(new PointListItemView(), this.#pointListComponent.element);
     
     // 3.2. создали презентер (В презентере будет создано краткое описание точки и форма)
     this.#pointPresenter = new PointPresenter({
       pointContainer: this.#pointListComponent.element.lastElementChild,
-      point: pointItem,
       offers: this.#offers,
       destinations: this.#destinations,
+      onDataChange: this.#handlePointChange,
     });
 
     // 3.3. инициировали и отрисовали точку
-    this.#pointPresenter.init();
+    this.#pointPresenter.init(pointItem);
 
     // 3.4. сохранили точку в карте
     this.#pointPresenters.set(pointItem.id, this.#pointPresenter);
   }
 
+  #handlePointChange = () => {
+    
+    /** берем данные с сервера (все точки, которые представлены в виде массива) и ищем точку, которую изменили. Это будет updateTask. Сравниваем по id. Если совпадает ,то возвращаем массив с измененными данными, если нет, оставляем значение точки как есть */
+    // this.#boardTasks = updateItem(this.#boardTasks, updatedTask);
+
+
+    /** sourcedBoardTasks - тут порядок задач тот, что был изначально, не мутированный сортировкой. В нем мы тоже меняем значение измененной задачки */
+    // this.#sourcedBoardTasks = updateItem(this.#sourcedBoardTasks, updatedTask);
+
+    /** из коллекции (new Map() нахоидит по id (ключу) его значение. В качестве значения представлен презентер задачи. В этом презентере мы вызываем метод init, который отрисовывает обновленные данные) */
+    // this.#taskPresenters.get(updatedTask.id).init(updatedTask);
+  };
+
   init() {
+    // массив начальных точек
+    this.#sourcePoints = this.#pointsModel.points;
+
     this.renderSort();
     this.renderList();
   }
