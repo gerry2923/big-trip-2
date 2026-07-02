@@ -58,17 +58,21 @@ export default class MainPresenter {
     this.#pointPresenters.set(pointItem.id, this.#pointPresenter);
   }
 
-  #handlePointChange = () => {
+  #handlePointChange = (updatedPoint) => {
     
-    /** берем данные с сервера (все точки, которые представлены в виде массива) и ищем точку, которую изменили. Это будет updateTask. Сравниваем по id. Если совпадает ,то возвращаем массив с измененными данными, если нет, оставляем значение точки как есть */
+    /** берем данные с сервера (все точки, которые представлены в виде МАССИВА) и ищем точку, которую изменили. Это будет updateTask. Сравниваем по id. Если совпадает ,то возвращаем массив с измененными данными, если нет, оставляем значение точки как есть */
     // this.#boardTasks = updateItem(this.#boardTasks, updatedTask);
-
+    this.#pointsModel.points(updateItem(this.#pointsModel.points, updatedPoint))
+    
 
     /** sourcedBoardTasks - тут порядок задач тот, что был изначально, не мутированный сортировкой. В нем мы тоже меняем значение измененной задачки */
     // this.#sourcedBoardTasks = updateItem(this.#sourcedBoardTasks, updatedTask);
+    this.#soursePoints = updateItem(this.#sourcePoints, updatedPoint);
 
     /** из коллекции (new Map() нахоидит по id (ключу) его значение. В качестве значения представлен презентер задачи. В этом презентере мы вызываем метод init, который отрисовывает обновленные данные) */
     // this.#taskPresenters.get(updatedTask.id).init(updatedTask);
+
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
   };
 
   init() {

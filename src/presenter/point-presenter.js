@@ -12,7 +12,9 @@ export default class PointPresenter {
   editPointComponent = null;
   pointComponent = null;
   #pointOffers = null;
+  #handleDataChange = null;
   #isComponentHidden = false;
+
 
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
@@ -22,12 +24,18 @@ export default class PointPresenter {
     }
   };
 
-  constructor({ pointContainer, offers, destinations }) {
+  #handleFavouriteClick = (evt) => {
+    this.#handleDataChange({...this.#pointData, isFavorite: !this.#pointData.isFavorite});
+  };
+
+  constructor({ pointContainer, offers, destinations, onDataChange }) {
 
     this.#pointContainer = pointContainer;
     // this.#pointData = point;
     this.#offers = offers;
     this.#destinations = destinations;
+    this.#handleDataChange = onDataChange;
+
   }
 
   #replaceCardToForm() {
@@ -66,6 +74,8 @@ export default class PointPresenter {
         this.#replaceCardToForm();
         document.addEventListener('keydown', this.#escKeyDownHandler);
       },
+
+      onFavouriteClick: this.#handleFavouriteClick,
     });
 
     // создаем компонент точки редактирования
