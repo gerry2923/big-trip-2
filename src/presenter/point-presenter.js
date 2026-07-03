@@ -1,4 +1,4 @@
-import { render, replace, remove } from '../framework/render';
+import { render, replace } from '../framework/render';
 
 import EditPointView from '../view/edit-point-view/edit-point-view';
 import PointView from '../view/point-view/point-view';
@@ -51,9 +51,9 @@ export default class PointPresenter {
   }
 
   renderPoint() {
-    
+
     //// извлечь название города
-    const destination = this.#destinations.find((destination) => destination.id === this.#pointData.destination);
+    const destination = this.#destinations.find((destinationData) => destinationData.id === this.#pointData.destination);
     const cityName = destination.name;
 
     //// извлечь все офферы
@@ -64,7 +64,7 @@ export default class PointPresenter {
     // 2. массив всех id офферов, которые есть в точке
     const pointOffersIds = new Set(this.#pointData.offers);
 
-    // 3. массив объектов 
+    // 3. массив объектов
     this.#pointOffers = allOffersByType.filter((offer) => pointOffersIds.has(offer.id));
 
     // создаем [не полный] компонент точки маршрута списка
@@ -87,7 +87,7 @@ export default class PointPresenter {
       }
     });
 
-    render(this.pointComponent, this.#pointContainer)
+    render(this.pointComponent, this.#pointContainer);
   }
 
   init(point) {

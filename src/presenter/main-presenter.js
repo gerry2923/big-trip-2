@@ -1,4 +1,5 @@
 import { render } from '../framework/render';
+import { updateItem } from '../utils/point';
 import SortView from '../view/sort-view/sort-view';
 import PointListView from '../view/point-list-view/point-list-view';
 import PointListItemView from '../view/point-list-item-view/point-list-item-view';
@@ -12,6 +13,7 @@ export default class MainPresenter {
   #pointPresenter = null;
   #offers = null;
   #destinations = null;
+  #sourcePoints = null;
   #pointPresenters = new Map();
   listItem = null;
 
@@ -42,7 +44,7 @@ export default class MainPresenter {
 
     // 3.1. создали элемент li
     render(new PointListItemView(), this.#pointListComponent.element);
-    
+
     // 3.2. создали презентер (В презентере будет создано краткое описание точки и форма)
     this.#pointPresenter = new PointPresenter({
       pointContainer: this.#pointListComponent.element.lastElementChild,
@@ -59,15 +61,15 @@ export default class MainPresenter {
   }
 
   #handlePointChange = (updatedPoint) => {
-    
+
     /** берем данные с сервера (все точки, которые представлены в виде МАССИВА) и ищем точку, которую изменили. Это будет updateTask. Сравниваем по id. Если совпадает ,то возвращаем массив с измененными данными, если нет, оставляем значение точки как есть */
     // this.#boardTasks = updateItem(this.#boardTasks, updatedTask);
     this.#pointsModel.points(updateItem(this.#pointsModel.points, updatedPoint))
-    
+
 
     /** sourcedBoardTasks - тут порядок задач тот, что был изначально, не мутированный сортировкой. В нем мы тоже меняем значение измененной задачки */
     // this.#sourcedBoardTasks = updateItem(this.#sourcedBoardTasks, updatedTask);
-    this.#soursePoints = updateItem(this.#sourcePoints, updatedPoint);
+    this.#sourcePoints = updateItem(this.#sourcePoints, updatedPoint);
 
     /** из коллекции (new Map() нахоидит по id (ключу) его значение. В качестве значения представлен презентер задачи. В этом презентере мы вызываем метод init, который отрисовывает обновленные данные) */
     // this.#taskPresenters.get(updatedTask.id).init(updatedTask);
