@@ -1,4 +1,4 @@
-import { render, replace } from '../framework/render';
+import { remove, render, replace } from '../framework/render';
 
 import EditPointView from '../view/edit-point-view/edit-point-view';
 import PointView from '../view/point-view/point-view';
@@ -9,8 +9,9 @@ export default class PointPresenter {
   #pointData = null;
   #offers = null;
   #destinations = null;
-  editPointComponent = null;
-  pointComponent = null;
+  #cityName = null;
+  #editPointComponent = null;
+  #pointComponent = null;
   #pointOffers = null;
   #handleDataChange = null;
   #isComponentHidden = false;
@@ -24,14 +25,13 @@ export default class PointPresenter {
     }
   };
 
-  #handleFavouriteClick = (evt) => {
-    this.#handleDataChange({...this.#pointData, isFavorite: !this.#pointData.isFavorite});
+  #handleFavouriteClick = () => {
+    this.#handleDataChange({ ...this.#pointData, isFavorite: !this.#pointData.isFavorite });
   };
 
   constructor({ pointContainer, offers, destinations, onDataChange }) {
 
     this.#pointContainer = pointContainer;
-    // this.#pointData = point;
     this.#offers = offers;
     this.#destinations = destinations;
     this.#handleDataChange = onDataChange;
@@ -39,22 +39,21 @@ export default class PointPresenter {
   }
 
   #replaceCardToForm() {
-    replace(this.editPointComponent, this.pointComponent);
+    replace(this.#editPointComponent, this.#pointComponent);
   }
 
   #replaceFormToCard() {
-    replace(this.pointComponent, this.editPointComponent);
+    replace(this.#pointComponent, this.#editPointComponent);
   }
 
   checkOfferType(offer) {
     return offer.type === this.#pointData.type;
   }
 
-  renderPoint() {
-
+  #extractData() {
     //// извлечь название города
     const destination = this.#destinations.find((destinationData) => destinationData.id === this.#pointData.destination);
-    const cityName = destination.name;
+    this.#cityName = destination.name;
 
     //// извлечь все офферы
 
@@ -66,10 +65,16 @@ export default class PointPresenter {
 
     // 3. массив объектов
     this.#pointOffers = allOffersByType.filter((offer) => pointOffersIds.has(offer.id));
+  }
 
+  renderPoint() {
+    const prevPointComponent = this.#pointComponent;
+    const prevEditPointComponent = this.#editPointComponent;
+
+    this.#extractData();
     // создаем [не полный] компонент точки маршрута списка
-    this.pointComponent = new PointView({
-      point: { ...this.#pointData, offers: this.#pointOffers, destination: cityName },
+    this.#pointComponent = new PointView({
+      point: { ...this.#pointData, offers: this.#pointOffers, destination: this.#cityName },
       onEditClick: () => {
         this.#replaceCardToForm();
         document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -79,7 +84,7 @@ export default class PointPresenter {
     });
 
     // создаем компонент точки редактирования
-    this.editPointComponent = new EditPointView({
+    this.#editPointComponent = new EditPointView({
       point: { ...this.#pointData, isHidden: this.#isComponentHidden },
       onFormSubmit: () => {
         this.#replaceFormToCard();
@@ -87,7 +92,15 @@ export default class PointPresenter {
       }
     });
 
-    render(this.pointComponent, this.#pointContainer);
+
+    if(prevPointComponent === null || prevEditPointComponent === null) {
+      render(this.#pointComponent, this.#pointContainer);
+      return;
+    }
+    render(this.#pointComponent, this.#pointContainer);
+
+    remove(prevPointComponent);
+    remove(prevEditPointComponent);
   }
 
   init(point) {

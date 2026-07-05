@@ -64,7 +64,7 @@ export default class MainPresenter {
 
     /** берем данные с сервера (все точки, которые представлены в виде МАССИВА) и ищем точку, которую изменили. Это будет updateTask. Сравниваем по id. Если совпадает ,то возвращаем массив с измененными данными, если нет, оставляем значение точки как есть */
     // this.#boardTasks = updateItem(this.#boardTasks, updatedTask);
-    this.#pointsModel.points(updateItem(this.#pointsModel.points, updatedPoint))
+    this.#pointsModel.points = updateItem(this.#pointsModel.points, updatedPoint);
 
 
     /** sourcedBoardTasks - тут порядок задач тот, что был изначально, не мутированный сортировкой. В нем мы тоже меняем значение измененной задачки */

@@ -1,20 +1,20 @@
 import { getDateDifference, getCustomTime, getMonthDay, changeToFirstCapitalLetter } from '../../utils/common';
 
 const getOffersString = (point) => {
-  let offers = "";
-  
+  let offers = '';
+
   point.offers.forEach((offer) => {
-    console.log()
     offers += `
       <li class="event__offer">
        <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
        <span class="event__offer-price">${offer.price}</span>
-      </li>`
-    });
+      </li>`;
+  }
+  );
 
-  return offers; 
-}; 
+  return offers;
+};
 
 export const createPointTemplate = (point) => `
   <div class="event">
@@ -36,7 +36,7 @@ export const createPointTemplate = (point) => `
                 </p>
                 <h4 class="visually-hidden">Offers:</h4>
                 <ul class="event__selected-offers">
-                  ${getOffersString(point)} 
+                  ${getOffersString(point)}
                 </ul>
                 <button class="event__favorite-btn ${point.isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
                   <span class="visually-hidden">Add to favorite</span>
