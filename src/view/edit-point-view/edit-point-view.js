@@ -6,9 +6,9 @@ export default class EditPointView extends AbstractView {
   #handleFormSubmit = null;
 
   #formSubmitHandler = (evt) => {
-     evt.preventDefault;
+    evt.preventDefault();
     this.#handleFormSubmit();
-  }
+  };
 
   constructor({point, onFormSubmit}) {
     super();

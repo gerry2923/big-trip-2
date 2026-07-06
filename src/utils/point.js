@@ -5,4 +5,4 @@
  * @returns массив с обновленными данными
  */
 
-export const updateItem = (items, updateItem) => items.map((item) => item.id === updateItem.id ? updateItem : item);
+export const updateItem = (items, updatePoint) => items.map((item) => item.id === updatePoint.id ? updatePoint : item);

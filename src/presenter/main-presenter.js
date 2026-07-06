@@ -7,14 +7,17 @@ import PointPresenter from './point-presenter';
 
 export default class MainPresenter {
   #mainContainer = null;
+  #pointsModel = null;
+
   #pointListComponent = null;
   #sortComponent = null;
-  #pointsModel = null;
+
+  #pointPresenters = new Map();
   #pointPresenter = null;
+  #sourcePoints = null;
+
   #offers = null;
   #destinations = null;
-  #sourcePoints = null;
-  #pointPresenters = new Map();
   listItem = null;
 
   constructor({ mainContainer, pointsModel, offers, destinations }) {
@@ -51,6 +54,7 @@ export default class MainPresenter {
       offers: this.#offers,
       destinations: this.#destinations,
       onDataChange: this.#handlePointChange,
+      onModeChange: this.#handleModeChange,
     });
 
     // 3.3. инициировали и отрисовали точку
@@ -59,6 +63,12 @@ export default class MainPresenter {
     // 3.4. сохранили точку в карте
     this.#pointPresenters.set(pointItem.id, this.#pointPresenter);
   }
+
+  #handleModeChange = () => {
+    this.#pointPresenters.forEach((presenter) =>
+      presenter.resetView());
+  };
+
 
   #handlePointChange = (updatedPoint) => {
 
@@ -76,6 +86,7 @@ export default class MainPresenter {
 
     this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
   };
+
 
   init() {
     // массив начальных точек
