@@ -1,5 +1,5 @@
 export const createEditPointTemplate = (point) => `
-  <form class="event event--edit ${point.isHidden? 'event--hidden' : ''}" action="#" method="post">
+  <form class="event event--edit ${point.isHidden ? 'event--hidden' : ''}" action="#" method="post">
                 <header class="event__header">
                   <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
