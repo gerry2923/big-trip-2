@@ -42,7 +42,7 @@ export default class MainPresenter {
       this.renderPoint(pointItem);
     });
   }
-
+  // pointItem - данные из сервера/мока
   renderPoint(pointItem) {
 
     // 3.1. создали элемент li
