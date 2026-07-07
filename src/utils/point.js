@@ -6,3 +6,5 @@
  */
 
 export const updateItem = (items, updatePoint) => items.map((item) => item.id === updatePoint.id ? updatePoint : item);
+export const sortPriceDown = (priceA, priceB) => {};
+export const sortDurationDown = (timeA, timeB) => {};

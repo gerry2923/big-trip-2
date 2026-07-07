@@ -1,5 +1,8 @@
 import { render } from '../framework/render';
 import { updateItem } from '../utils/point';
+import { SortType } from '../const';
+import { sortDurationDown, sortPriceDown } from '../utils/point';
+
 import SortView from '../view/sort-view/sort-view';
 import PointListView from '../view/point-list-view/point-list-view';
 import PointListItemView from '../view/point-list-item-view/point-list-item-view';
@@ -14,11 +17,13 @@ export default class MainPresenter {
 
   #pointPresenters = new Map();
   #pointPresenter = null;
-  #sourcePoints = null;
+  #sourcePoints = [];
 
   #offers = null;
   #destinations = null;
   listItem = null;
+
+  #currentSortType = SortType.DAY;
 
   constructor({ mainContainer, pointsModel, offers, destinations }) {
     this.#mainContainer = mainContainer;
@@ -27,8 +32,28 @@ export default class MainPresenter {
     this.#destinations = destinations;
   }
 
+  #sortPoints(sortType) {
+
+    // проверяем какой тип сортировки. В зависимости от типа, применяем функцию либо sortPriceDown, либо sortDurationDown. По умолчанию копируем массив-источник. Сортировка от максимального к минимальному значению
+    switch (sortType) {
+      case SortType.PRICE:
+        this.#pointsModel.points.sort(sortPriceDown);
+        break;
+
+      case SortType.TIME:
+        this.#pointsModel.points.sort(sortDurationDown);
+        break;
+
+      default:
+        this.#pointsModel.points = [...this.#sourcePoints];
+        break;
+    }
+
+    this.#currentSortType = sortType;
+  }
+
   renderSort() {
-    this.#sortComponent = new SortView();
+    this.#sortComponent = new SortView({onSortTypeChange: this.#handleSortTypeChange});
     render(this.#sortComponent, this.#mainContainer);
   }
 
@@ -69,7 +94,6 @@ export default class MainPresenter {
       presenter.resetView());
   };
 
-
   #handlePointChange = (updatedPoint) => {
 
     /** берем данные с сервера (все точки, которые представлены в виде МАССИВА) и ищем точку, которую изменили. Это будет updateTask. Сравниваем по id. Если совпадает ,то возвращаем массив с измененными данными, если нет, оставляем значение точки как есть */
@@ -87,10 +111,22 @@ export default class MainPresenter {
     this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
   };
 
+  #handleSortTypeChange = (sortType) => {
+    // проверяем, не повторяется ли сортировка
+    if(this.#currentSortType === sortType) {
+      return;
+    }
+
+    // сортируем задачи
+    this.#sortPoints();
+    // очищаем список
+    // рендерим список заново
+  };
 
   init() {
     // массив начальных точек
-    this.#sourcePoints = this.#pointsModel.points;
+    this.#sourcePoints = [...this.#pointsModel.points];
+    console.log(this.#sourcePoints);
 
     this.renderSort();
     this.renderList();
