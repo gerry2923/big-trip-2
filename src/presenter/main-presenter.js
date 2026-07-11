@@ -126,7 +126,7 @@ export default class MainPresenter {
   init() {
     // массив начальных точек
     this.#sourcePoints = [...this.#pointsModel.points];
-    console.log(this.#sourcePoints);
+    // console.log(this.#sourcePoints);
 
     this.renderSort();
     this.renderList();

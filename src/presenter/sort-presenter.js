@@ -1,11 +1,5 @@
 export default class SortPresenter {
-    constructor() {
+  constructor() {}
 
-    }
-
-
-    
-    init() {
-
-    }
+  init() {}
 }

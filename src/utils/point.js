@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 /**
  *
  * @param {Array} items массив исходных данных, загруженных с сервера
@@ -6,5 +8,8 @@
  */
 
 export const updateItem = (items, updatePoint) => items.map((item) => item.id === updatePoint.id ? updatePoint : item);
+
+// TODO: организовать сортировку
 export const sortPriceDown = (priceA, priceB) => {};
+
 export const sortDurationDown = (timeA, timeB) => {};
