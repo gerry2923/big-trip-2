@@ -9,7 +9,7 @@ import NewPagePresenter from './presenter/new-page-presenter';
 const siteBodyElement = document.querySelector('.page-body');
 const siteHeaderElement = siteBodyElement.querySelector('.trip-main');
 const siteMainElement = siteBodyElement.querySelector('.trip-events');
-const sitePointsModel = new PointsModel();
+const sitePointsModel = new PointsModel(); // добавляет данные с сервера
 const siteOffers = offers;
 const siteDestination = destinationPoints;
 
@@ -18,7 +18,7 @@ clearElement(siteHeaderElement);
 // TODO-1: если данные в процессе загрузки mode - 1
 // TODO-2: если данные не загрузились mode - 2
 // TODO-3: если добавленных точек нет mode - 3
- 
+
 // если есть данные для отображения
 if (sitePointsModel.points.length) {
   const contentPresenter = new PagePresenter({
@@ -41,4 +41,3 @@ if (sitePointsModel.points.length) {
 
   newPagePresenter.init();
 }
-

@@ -88,9 +88,9 @@ export const getCustomTime = (travelDate) => {
 };
 
 export const getMonthDay = (travelDate) => {
-  const date = new Date(travelDate);
 
-  return `${MONTH[date.getMonth()]} ${String(date.getDay()).padStart(2, '0')}`;
+  const date = new Date(travelDate);
+  return `${MONTH[date.getMonth()]} ${String(date.getDate()).padStart(2, '0')}`;
 };
 
 export const changeToFirstCapitalLetter = (incomingString) => {

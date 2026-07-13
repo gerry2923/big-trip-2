@@ -45,7 +45,6 @@ export default class PagePresenter {
   }
 
   init() {
-    
     this.setHeader();
     this.setMain();
   }

@@ -21,6 +21,7 @@ export default class MainPresenter {
 
   #offers = null;
   #destinations = null;
+  #selectElementsData = null;
   listItem = null;
 
   #currentSortType = SortType.DAY;
@@ -30,6 +31,7 @@ export default class MainPresenter {
     this.#pointsModel = pointsModel;
     this.#offers = offers;
     this.#destinations = destinations;
+    this.#selectElementsData = this.#pointsModel.selectElementsOptions; // объект с типами и городами
   }
 
   #sortPoints(sortType) {
@@ -78,6 +80,8 @@ export default class MainPresenter {
       pointContainer: this.#pointListComponent.element.lastElementChild,
       offers: this.#offers,
       destinations: this.#destinations,
+      selectsContent: this.#selectElementsData,
+
       onDataChange: this.#handlePointChange,
       onModeChange: this.#handleModeChange,
     });
