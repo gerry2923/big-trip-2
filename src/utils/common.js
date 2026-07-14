@@ -59,18 +59,18 @@ export const getDateDifference = (travelDateFrom, travelDateTo) => {
     const date = new Date(delta);
 
     if(delta < HOUR) {
-      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
       return `${minutes}М`;
 
     } else if (delta < DAY) {
-      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
       const hours = String(date.getHours()).padStart(2, '0');
       return `${hours}H ${minutes}M`;
 
     } else {
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const days = String(date.getDay()).padStart(2, '0');
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      const hours = String(date.getUTCHours()).padStart(2, '0');
+      const days = String(date.getUTCDay()).padStart(2, '0');
       return `${days}D ${hours}H ${minutes}M`;
     }
   }
@@ -82,15 +82,31 @@ export const getDateDifference = (travelDateFrom, travelDateTo) => {
  */
 
 export const getCustomTime = (travelDate) => {
-  const minutes = String((new Date(travelDate)).getMinutes()).padStart(2, '0');
-  const hours = String((new Date(travelDate)).getHours()).padStart(2, '0');
+  const minutes = String((new Date(travelDate)).getUTCMinutes()).padStart(2, '0');
+  const hours = String((new Date(travelDate)).getUTCHours()).padStart(2, '0');
   return `${hours}:${minutes}`;
 };
+// через регулярное выражение
+// export const getCustomTime = (isoString) => {
+
+//   if (!isoString || typeof isoString !== 'string') {
+//     return null;
+//   }
+//   // Ищем группу цифр часов и минут сразу после символа T
+//   const match = isoString.match(/T(\d{2}):(\d{2}):/);
+
+//   if (match) {
+//     return `${match[1]}:${match[2]}`;
+//   }
+
+//   return null;
+
+// };
+
 
 export const getMonthDay = (travelDate) => {
-
   const date = new Date(travelDate);
-  return `${MONTH[date.getMonth()]} ${String(date.getDate()).padStart(2, '0')}`;
+  return `${MONTH[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2, '0')}`;
 };
 
 export const changeToFirstCapitalLetter = (incomingString) => {

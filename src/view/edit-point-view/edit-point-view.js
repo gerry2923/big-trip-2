@@ -1,6 +1,7 @@
 import { createEditPointTemplate } from './edit-point-template';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view';
 import flatpickr from 'flatpickr';
+import moment from 'moment-timezone';
 import 'flatpickr/dist/flatpickr.min.css';
 /**
  * Этот класс можно использовать для добавления новой точки маршрута, тогда нужно по умолчанию добавить cosnt BLANK_POINT {} и использовать его в значении по умолчанию для точки в конструкторе, те. point = BLANK_POINT ====>> его добавлять будем при клике на кнопку '+New Event'
@@ -25,15 +26,22 @@ export default class EditPointView extends AbstractStatefulView {
   // #point = null;
   #handleFormSubmit = null;
   #datepickerStartTime = null;
+  #datepickerEndTime = null;
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit();
   };
 
-  #dueDateChangeHandler = ([userDate]) => {
+  #dateFromChangeHandler = ([userDate]) => {
     this.updateElement({
-      dateFrom: userDate,
+      dateFrom: moment.utc(userDate).toISOString(),
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: moment.utc(userDate).toISOString(),
     });
   };
 
@@ -56,32 +64,87 @@ export default class EditPointView extends AbstractStatefulView {
     this.#setDatepicker();
   }
 
-  #setDatepicker() {
+  // TODO: выполнить проверку правильности выбора даты (дата после не должна быть ранее даты до)
 
-    //
-    this.#datepickerStartTime = flatpickr(
-      this.element.querySelector('#event-start-time-1'),
-      {
-        enableTime: true,
-        time_24hr: true,
-        dateFormat: 'd/m/y H:i',
-        defaultDate: this._state.dateFrom,
-        allowInput: false,
-        onChange: this.#dueDateChangeHandler, // На событие flatpickr передаём наш колбэк
-        // // Настройка локализации (подписи кнопок на русском)
-        locale: {
-          firstDayOfWeek: 1, // неделя начинается с понедельника
-          weekdays: {
-            shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
-            longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
+  #setDatepicker() {
+    // проверяет, установлена ли дата, если да, то ставим ее в input
+    if (this._state.dateFrom && this._state.dateTo) {
+
+      this.#datepickerStartTime = flatpickr(
+        this.element.querySelector('#event-start-time-1'),
+        {
+          enableTime: true,
+          time_24hr: true,
+          utc: true,
+          allowInput: false,
+          // defaultDate: this._state.dateFrom,//
+          defaultDate: (new Date()).toISOString(),
+
+          parseDate: function (dateStr) {
+            return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
           },
-          months: {
-            shorthand: ['Янв', 'Фев', 'Март', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
-            longhand: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+
+          formatDate: function (date) {
+            return moment.utc(date).format('DD/MM/YY HH:mm');
           },
-          today: 'Сегодня'
-        },
-      });
+
+          // Настройка локализации (подписи кнопок на русском)
+          locale: {
+            firstDayOfWeek: 1, // неделя начинается с понедельника
+            weekdays: {
+              shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+              longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
+            },
+            months: {
+              shorthand: ['Янв', 'Фев', 'Март', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+              longhand: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+            },
+            today: 'Сегодня'
+          },
+
+          onChange: this.#dateFromChangeHandler, // На событие flatpickr передаём наш колбэк
+        }
+      );
+
+      this.#datepickerEndTime = flatpickr(
+        this.element.querySelector('#event-end-time-1'),
+        {
+          enableTime: true,
+          time_24hr: true,
+          utc: true,
+          allowInput: false,
+          defaultDate: this._state.dateTo,
+
+          parseDate: function (dateStr) {
+            return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
+          },
+
+          formatDate: function (date) {
+            return moment.utc(date).format('DD/MM/YY HH:mm');
+          },
+
+          // Настройка локализации (подписи кнопок на русском)
+          locale: {
+            firstDayOfWeek: 1, // неделя начинается с понедельника
+            weekdays: {
+              shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+              longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
+            },
+            months: {
+              shorthand: ['Янв', 'Фев', 'Март', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+              longhand: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+            },
+            today: 'Сегодня'
+          },
+
+          onChange: this.#dateToChangeHandler, // На событие flatpickr передаём наш колбэк
+        }
+      );
+
+      this.#datepickerStartTime.setDate(this._state.dateFrom);
+      this.#datepickerEndTime.setDate(this._state.dateTo);
+    }
+    // return false;
   }
 
   removeElement() {
@@ -90,6 +153,11 @@ export default class EditPointView extends AbstractStatefulView {
     if (this.#datepickerStartTime) {
       this.#datepickerStartTime.destroy();
       this.#datepickerStartTime = null;
+    }
+
+    if (this.#datepickerEndTime) {
+      this.#datepickerEndTime.destroy();
+      this.#datepickerEndTime = null;
     }
   }
   /*

@@ -29,69 +29,67 @@ const createTypeListTemplate = (types) => {
   return options;
 };
 
-const createOffersTemplate = () => {
-  console.log();
-  return `
-                  <section class="event__section  event__section--offers">
-                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+const createOffersTemplate = (point) => {
 
-                    <div class="event__available-offers">
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked>
-                        <label class="event__offer-label" for="event-offer-luggage-1">
-                          <span class="event__offer-title">Add luggage</span>
-                          &plus;&euro;&nbsp;
-                          <span class="event__offer-price">50</span>
-                        </label>
-                      </div>
+  const allOffersByType = point.allOffers.find((offersByType) => offersByType.type === point.type);
+  const idsSelectedOffers = new Set(point.offers.map((offer) => offer.id));
+  let offersStr = '';
 
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" checked>
+  allOffersByType.offers.forEach((offer) => {
+    if(idsSelectedOffers.has(offer.id)) {
+      offersStr += `<div class="event__offer-selector">
+                         <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" checked>
+                         <label class="event__offer-label" for="event-offer-comfort-1">
+                           <span class="event__offer-title">${offer.title}</span>
+                           &plus;&euro;&nbsp;
+                           <span class="event__offer-price">${offer.price}</span>
+                         </label>
+                       </div>`;
+    } else {
+      offersStr += `<div class="event__offer-selector">
+                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort">
                         <label class="event__offer-label" for="event-offer-comfort-1">
-                          <span class="event__offer-title">Switch to comfort</span>
+                          <span class="event__offer-title">${offer.title}</span>
                           &plus;&euro;&nbsp;
-                          <span class="event__offer-price">80</span>
+                          <span class="event__offer-price">${offer.price}</span>
                         </label>
-                      </div>
+                      </div>`;
+    }
+  });
 
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal">
-                        <label class="event__offer-label" for="event-offer-meal-1">
-                          <span class="event__offer-title">Add meal</span>
-                          &plus;&euro;&nbsp;
-                          <span class="event__offer-price">15</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats">
-                        <label class="event__offer-label" for="event-offer-seats-1">
-                          <span class="event__offer-title">Choose seats</span>
-                          &plus;&euro;&nbsp;
-                          <span class="event__offer-price">5</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-1" type="checkbox" name="event-offer-train">
-                        <label class="event__offer-label" for="event-offer-train-1">
-                          <span class="event__offer-title">Travel by train</span>
-                          &plus;&euro;&nbsp;
-                          <span class="event__offer-price">40</span>
-                        </label>
-                      </div>
-                    </div>
-                  </section>
+  return `<section class="event__section  event__section--offers">
+            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+              <div class="event__available-offers">
+              ${offersStr}
+              </div>
+          </section>
   `;
 };
 
-const createDescriptionTemplate = () => {
-  console.log();
+const createDescriptionTemplate = (point) => {
+
+  let pictures = '';
+  const isPictures = !!point.destination.pictures;
+  if(isPictures) {
+    point.destination.pictures.forEach((picture) => {
+      pictures += `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`;
+    });
+  }
+
+  //TODO сделать три разных случая, когда сть картинки, описание и название, и когда их нет
+
   return `
           <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">Chamonix-Mont-Blanc (usually shortened to Chamonix) is a resort area near the junction of France, Switzerland and Italy. At the base of Mont Blanc, the highest summit in the Alps, it's renowned for its skiing.</p>
+            <h3 class="event__section-title  event__section-title--destination">${point.destination.name}</h3>
+            <p class="event__destination-description">${point.destination.description}</p>
           </section>
+          ${point.destination.pictures ? `
+            <div class="event__photos-container">
+                      <div class="event__photos-tape">
+                      ${pictures}
+                      </div>
+                    </div>
+            ` : ''}
   `;
 };
 
@@ -138,9 +136,9 @@ export const createEditPointTemplate = (point) => `
                   <div class="event__field-group  event__field-group--price">
                     <label class="event__label" for="event-price-1">
                       <span class="visually-hidden">Price</span>
-                      &euro;
+                     &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160">
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${point.basePrice}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -151,10 +149,9 @@ export const createEditPointTemplate = (point) => `
                 </header>
 
                 <section class="event__details">
+                  ${(point.offers.length !== 0) ? createOffersTemplate(point) : ''}
 
-                  ${createOffersTemplate()}
-
-                  ${createDescriptionTemplate()}
+                  ${point.destination !== '' ? createDescriptionTemplate(point) : ''}
 
                 </section>
               </form>
