@@ -45,6 +45,28 @@ export default class EditPointView extends AbstractStatefulView {
     });
   };
 
+  #eventTypeHandler = (evt) => {
+    evt.preventDefault();
+
+    this.updateElement({
+      type: evt.target.value,
+      offers: [],
+    });
+
+
+  };
+
+  #changeDestinationHandler = (evt) => {
+    evt.preventDefault();
+    console.log(evt.target.value);
+
+
+    this.updateElement({
+      destination: this._state.allDestinations.find((destination) => destination.name === evt.target.value),
+    });
+
+  };
+
   constructor({ point, onFormSubmit }) {
     super();
     this._state = EditPointView.parsePointToState(point);
@@ -61,6 +83,11 @@ export default class EditPointView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler);
 
+    this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeHandler);
+
+    this.element.querySelector('#event-destination-1').addEventListener('change',this.#changeDestinationHandler);
+    // this.element.querySelector('').addEventListener('',);
+    // this.element.querySelector('').addEventListener('',);
     this.#setDatepicker();
   }
 

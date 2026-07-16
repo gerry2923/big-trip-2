@@ -39,15 +39,13 @@ export default class AbstractStatefulView extends AbstractView {
 
   /** Метод для перерисовки элемента */
   #rerenderElement() {
-    // console.log('предыдущий элемент');
-    // console.log(this.element);
-    const prevElement = this.element; // ???? что такое this.element, если есть this.#element ????
+    // this.element - это вызов геттера get element(). Он возвращает созданный шаблон элемента
+    const prevElement = this.element;
     const parent = prevElement.parentElement;
     this.removeElement();
 
     const newElement = this.element;
-    // console.log('новый элемент');
-    // console.log(newElement);
+
     parent.replaceChild(newElement, prevElement);
 
     this._restoreHandlers();

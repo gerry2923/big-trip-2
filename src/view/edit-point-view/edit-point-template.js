@@ -30,10 +30,10 @@ const createTypeListTemplate = (types) => {
 };
 
 const createOffersTemplate = (point) => {
-
   const allOffersByType = point.allOffers.find((offersByType) => offersByType.type === point.type);
   const idsSelectedOffers = new Set(point.offers.map((offer) => offer.id));
   let offersStr = '';
+
 
   allOffersByType.offers.forEach((offer) => {
     if(idsSelectedOffers.has(offer.id)) {
@@ -56,42 +56,39 @@ const createOffersTemplate = (point) => {
                       </div>`;
     }
   });
-
-  return `<section class="event__section  event__section--offers">
+  return offersStr ? `<section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
               <div class="event__available-offers">
               ${offersStr}
               </div>
           </section>
-  `;
+  ` : '';
+
 };
 
-const createDescriptionTemplate = (point) => {
+const createPictureListTemplate = (point) => {
 
   let pictures = '';
-  const isPictures = !!point.destination.pictures;
-  if(isPictures) {
+  const isPictures = !!point.destination.pictures.length;
+  if (isPictures) {
     point.destination.pictures.forEach((picture) => {
       pictures += `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`;
     });
   }
 
-  //TODO сделать три разных случая, когда сть картинки, описание и название, и когда их нет
+  return isPictures ? `<div class="event__photos-container">
+            <div class="event__photos-tape">
+            ${pictures}
+            </div>
+        </div>` : '';
+};
 
-  return `
+const createDescriptionTemplate = (point) => point.destination.description ? `
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">${point.destination.name}</h3>
             <p class="event__destination-description">${point.destination.description}</p>
           </section>
-          ${point.destination.pictures ? `
-            <div class="event__photos-container">
-                      <div class="event__photos-tape">
-                      ${pictures}
-                      </div>
-                    </div>
-            ` : ''}
-  `;
-};
+          ${createPictureListTemplate(point)}` : '';
 
 export const createEditPointTemplate = (point) => `
               <form class="event event--edit" action="#" method="post">
@@ -149,7 +146,7 @@ export const createEditPointTemplate = (point) => `
                 </header>
 
                 <section class="event__details">
-                  ${(point.offers.length !== 0) ? createOffersTemplate(point) : ''}
+                  ${createOffersTemplate(point)}
 
                   ${point.destination !== '' ? createDescriptionTemplate(point) : ''}
 
