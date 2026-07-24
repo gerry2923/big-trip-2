@@ -1,4 +1,6 @@
+import { UpdateType, UserAction } from '../const';
 import { remove, render, replace } from '../framework/render';
+import { isDateEquall } from '../utils/point';
 
 import EditPointView from '../view/edit-point-view/edit-point-view';
 import PointView from '../view/point-view/point-view';
@@ -10,39 +12,86 @@ const Mode = {
 
 export default class PointPresenter {
 
+  #pointContainerComponent = null;
   #pointContainer = null;
   #pointData = null;
   #offers = null;
   #destinations = null;
-  #cityName = null;
+  #destination = null;
   #editPointComponent = null;
   #pointComponent = null;
   #pointOffers = null;
+  #selectDestinationsOptions = null;
+  #selectTypeOptions = null;
   #handleDataChange = null;
   #handleModeChange = null;
-  #isComponentHidden = false;
   #mode = Mode.DEFAULT;
 
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
+      this.#editPointComponent.reset(this.#pointData);
       this.#replaceFormToCard();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   };
 
-  #handleFavouriteClick = () => {
-    this.#handleDataChange({ ...this.#pointData, isFavorite: !this.#pointData.isFavorite });
+  #handleCloseFrom = () => {
+    this.#editPointComponent.reset(this.#pointData);
+    this.#replaceFormToCard();
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
-  constructor({ pointContainer, offers, destinations, onDataChange, onModeChange }) {
+  #handleFavouriteClick = () => {
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      { ...this.#pointData, isFavorite: !this.#pointData.isFavorite }
+    );
+  };
 
-    this.#pointContainer = pointContainer;
+  // в update находятся данные точки
+  #handelFormSubmit = (update) => {
+    // обработка отправки формы
+    /**
+     * нужно проверить, поменялись ли в задаче данные, которые попадают под ФИЛЬТРАЦИЮ, а значит требуют перерисовки списка, если таких нет, то это patch - обновление, т.е. точечное, если поменялось, то уже minor, т.е. с перерисовкой всех данных согласно условию фильтрации
+     */
+
+    console.log(update);
+    const isMinorUpdate = !isDateEquall(this.#pointData.dateFrom, update.dateFrom) ||
+      !isDateEquall(this.#pointData.dateTo, update.dateTo);
+    console.log('is minor?');
+    console.log(isMinorUpdate);
+
+    const some = isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH;
+    console.log(some);
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update
+    );
+
+    this.#replaceFormToCard();
+  };
+
+  #handleDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
+  };
+
+
+  constructor({ pointItemContainer, offers, destinations, selectsContent, onDataChange, onModeChange }) {
+    this.#pointContainerComponent = pointItemContainer;
+    this.#pointContainer = this.#pointContainerComponent.element;
     this.#offers = offers;
     this.#destinations = destinations;
+    this.#selectDestinationsOptions = selectsContent.destinationOptions;
+    this.#selectTypeOptions = selectsContent.typesOptions;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
-
   }
 
   #replaceCardToForm() {
@@ -63,42 +112,49 @@ export default class PointPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
-  checkOfferType(offer) {
-    return offer.type === this.#pointData.type;
-  }
+  #extractDataForExistingPoint() {
+    //// извлечь объект - город точки назначения
+    this.#destination = this.#destinations.find((destinationData) => destinationData.id === this.#pointData.destination);
 
-  #extractData() {
-    //// извлечь название города
-    const destination = this.#destinations.find((destinationData) => destinationData.id === this.#pointData.destination);
-    this.#cityName = destination.name;
-
-    //// извлечь все офферы
+    //// извлечь все офферы для данного типа
 
     // 1. массив всех офферов определенного типа
-    const allOffersByType = this.#offers.find((offer) => this.checkOfferType(offer)).offers;
-
-    // 2. массив всех id офферов, которые есть в точке
+    const allOffersByType = this.#offers.find((offer) => offer.type === this.#pointData.type).offers;
+    // 2. массив всех id офферов, которые ЕСТЬ В ТОЧКЕ
     const pointOffersIds = new Set(this.#pointData.offers);
 
-    // 3. массив объектов
+    // 3. массив объектов всех предложений, которые ДОБАВЛЕНЫ В ТОЧКУ
     this.#pointOffers = allOffersByType.filter((offer) => pointOffersIds.has(offer.id));
   }
 
   // если режим находится в режиме Editing, то заменяем форму на карту
   resetView = () => {
-    if(this.#mode !== Mode.DEFAULT) {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#editPointComponent.reset(this.#pointData);
       this.#replaceFormToCard();
     }
   };
+
+  destroy() {
+    remove(this.#pointComponent);
+    remove(this.#editPointComponent);
+    remove(this.#pointContainerComponent);
+  }
 
   renderPoint() {
     const prevPointComponent = this.#pointComponent;
     const prevEditPointComponent = this.#editPointComponent;
 
-    this.#extractData();
+    this.#extractDataForExistingPoint();
     // создаем [не полный] компонент точки маршрута списка
+    // перерисовка уже СУЩЕСТВУЮЩЕЙ ТОЧКИ
     this.#pointComponent = new PointView({
-      point: { ...this.#pointData, offers: this.#pointOffers, destination: this.#cityName },
+      point: {
+        ...this.#pointData,
+        destination: this.#destination.name,
+        allOffers: this.#pointOffers, //
+      },
+
       onEditClick: () => {
         this.#replaceCardToForm();
       },
@@ -107,25 +163,34 @@ export default class PointPresenter {
     });
 
     // создаем компонент точки редактирования
+    // добавляем все типы транспорта, города и опцию показа формы
     this.#editPointComponent = new EditPointView({
-      point: { ...this.#pointData, isHidden: this.#isComponentHidden },
-      onFormSubmit: () => {
-        this.#replaceFormToCard();
-      }
+      point: this.#pointData,
+      additionalOptions: {
+
+        allOffers: this.#offers,
+        allDestinations: this.#destinations,
+
+        typesOptions: this.#selectTypeOptions,
+        destinationsOptions: this.#selectDestinationsOptions,
+      },
+      onCloseFormClick: this.#handleCloseFrom,
+      onFormSubmit: this.#handelFormSubmit,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     // если инициализировали компонент один раз и точка еще не создана
-    if(prevPointComponent === null || prevEditPointComponent === null) {
+    if (prevPointComponent === null || prevEditPointComponent === null) {
       render(this.#pointComponent, this.#pointContainer);
       return;
     }
     // заменяем старый компонент формы редактирования prevEditPointComponent на только что созданный, если мы находимся в режиме редактирования
-    if(this.#mode === Mode.EDITING) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#editPointComponent, prevEditPointComponent);
     }
 
     // заменяем старый компонент формы редактирования prevPointComponent на только что созданный, если мы находимся в режиме по умолчанию
-    if(this.#mode === Mode.DEFAULT) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#pointComponent, prevPointComponent);
     }
     // отрисовываем только что созданные компоненты

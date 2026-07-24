@@ -3,7 +3,7 @@ import { getDateDifference, getCustomTime, getMonthDay, changeToFirstCapitalLett
 const getOffersString = (point) => {
   let offers = '';
 
-  point.offers.forEach((offer) => {
+  point.allOffers.forEach((offer) => {
     offers += `
       <li class="event__offer">
        <span class="event__offer-title">${offer.title}</span>

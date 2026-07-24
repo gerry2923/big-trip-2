@@ -13,15 +13,20 @@ export const FilterTypes = {
   PAST: 'past',
 };
 
-export const filterNoPointMessage = {
-  EVERYTHING: 'Click New Event to create your first point',
-  FUTURE: 'There are no past events now',
-  PRESENT: 'There are no present events now',
-  PAST: 'There are no future events now',
-};
-
 export const SortType = {
-  DEFAULT: 'day',
+  DAY: 'day',
   PRICE: 'price',
   TIME: 'duration',
+};
+
+export const UserAction = {
+  UPDATE_POINT : 'UPDATE_POINT',
+  ADD_POINT : 'ADD_POINT',
+  DELETE_POINT : 'DELETE_POINT',
+};
+
+export const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
 };

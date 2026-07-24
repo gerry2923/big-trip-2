@@ -25,6 +25,7 @@ const tripPoint = [
     ],
     type: 'taxi'
   },
+  //Mukhos
   {
     id: 'f4b62099-293f-4c3d-a702-94eec4a9708c',
     basePrice: 200,
