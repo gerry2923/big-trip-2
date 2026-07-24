@@ -1,10 +1,10 @@
 import PointsModel from './model/points-model';
 import PagePresenter from './presenter/page-presenter';
 import { clearElement } from './utils/common';
-import { offers } from './moks/mockOffers';
-import { destinationPoints } from './moks/mockDestination';
+import { offers } from './moks/mock-offers';
+import { destinationPoints } from './moks/mock-destination';
 import { MESSAGES } from './const';
-import NewPagePresenter from './presenter/new-page-presenter';
+import NewPagePresenter from './presenter/empty-page-presenter';
 
 const siteBodyElement = document.querySelector('.page-body');
 const siteHeaderElement = siteBodyElement.querySelector('.trip-main');
@@ -20,24 +20,24 @@ clearElement(siteHeaderElement);
 // TODO-3: если добавленных точек нет mode - 3
 
 // если есть данные для отображения
-if (sitePointsModel.points.length) {
-  const contentPresenter = new PagePresenter({
-    headerContainer: siteHeaderElement,
-    mainContainer: siteMainElement,
-    pointsModel: sitePointsModel,
-    offers: siteOffers,
-    destinations: siteDestination
-  });
+// if (sitePointsModel.points.length) {
+const contentPresenter = new PagePresenter({
+  headerContainer: siteHeaderElement,
+  mainContainer: siteMainElement,
+  pointsModel: sitePointsModel,
+  offers: siteOffers,
+  destinations: siteDestination
+});
 
-  contentPresenter.init();
+contentPresenter.init();
 // если данных для отображения нет
-} else {
-  const newPagePresenter = new NewPagePresenter({
-    headerContainer: siteHeaderElement,
-    mainContainer: siteMainElement,
-    message: MESSAGES.addNew,
-    headerMode: 3
-  });
+// } else {
+//   const newPagePresenter = new NewPagePresenter({
+//     headerContainer: siteHeaderElement,
+//     mainContainer: siteMainElement,
+//     message: MESSAGES.addNew, // check messages
+//     headerMode: 3
+//   });
 
-  newPagePresenter.init();
-}
+//   newPagePresenter.init();
+// }

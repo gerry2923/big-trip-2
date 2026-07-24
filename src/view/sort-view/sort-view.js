@@ -3,11 +3,12 @@ import AbstractView from '../../framework/view/abstract-view';
 
 export default class SortView extends AbstractView {
   #handleSortTypeChange = null;
+  #currentSortType = null;
 
   #sortTypeChange = (evt) => {
 
     // делаем проверку на что мы кликнули. Должен быть тэг A
-    if(evt.target.tagName !== 'FORM') {
+    if(evt.target.tagName !== 'LABEL') {
       return;
     }
 
@@ -16,15 +17,16 @@ export default class SortView extends AbstractView {
     this.#handleSortTypeChange(evt.target.dataset.sortType);
   };
 
-  constructor({ onSortTypeChange }) {
+  constructor({ currentSortType, onSortTypeChange }) {
     super();
+    this.#currentSortType = currentSortType;
     this.#handleSortTypeChange = onSortTypeChange;
     // поставили обработчик на весь элемент. Для того, чтобы определять, куда был сделан клик, поставили каждому элементу data-атрибут
     this.element.addEventListener('click', this.#sortTypeChange);
   }
 
   get template() {
-    return createSortTemplate();
+    return createSortTemplate(this.#currentSortType);
   }
 
 }

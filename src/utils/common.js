@@ -50,6 +50,7 @@ const DAY = 86400000; // milliseconds
  */
 
 export const getDateDifference = (travelDateFrom, travelDateTo) => {
+
   const dateFrom = Date.parse(travelDateFrom);
   const dateTo = Date.parse(travelDateTo);
 
@@ -64,13 +65,13 @@ export const getDateDifference = (travelDateFrom, travelDateTo) => {
 
     } else if (delta < DAY) {
       const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
+      const hours = String(date.getUTCHours()).padStart(2, '0');
       return `${hours}H ${minutes}M`;
 
     } else {
       const minutes = String(date.getUTCMinutes()).padStart(2, '0');
       const hours = String(date.getUTCHours()).padStart(2, '0');
-      const days = String(date.getUTCDay()).padStart(2, '0');
+      const days = String(date.getUTCDate()).padStart(2, '0');
       return `${days}D ${hours}H ${minutes}M`;
     }
   }

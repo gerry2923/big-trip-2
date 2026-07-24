@@ -1,3 +1,5 @@
+import { FilterTypes } from '../const';
+import EmptyPagePresenter from './empty-page-presenter';
 import HeaderPresenter from './header-presenter';
 import MainPresenter from './main-presenter';
 /**
@@ -11,7 +13,8 @@ export default class PagePresenter {
   #pointsModel = null;
   #offers = null;
   #destinations = null;
-  #messageComponent = null;
+  #emptyPagePresenter = null;
+  // #messageComponent = null;
 
   constructor({ headerContainer, mainContainer, pointsModel, offers, destinations }) {
     this.#headerContainer = headerContainer;
@@ -45,6 +48,18 @@ export default class PagePresenter {
   }
 
   init() {
+
+    if(this.#pointsModel.points.length === 0) {
+      this.#emptyPagePresenter = new EmptyPagePresenter({
+        headerContainer: this.#headerContainer,
+        mainContainer: this.#mainContainer,
+        filterType: FilterTypes.EVERYTHING,
+      });
+
+      this.#emptyPagePresenter.init();
+      return;
+    }
+
     this.setHeader();
     this.setMain();
   }

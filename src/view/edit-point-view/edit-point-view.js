@@ -1,4 +1,5 @@
 import { createEditPointTemplate } from './edit-point-template';
+import { getAllOffersByType, getSelectedOffers, isFromDateEarlierToDate } from '../../utils/point';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view';
 import flatpickr from 'flatpickr';
 import moment from 'moment-timezone';
@@ -24,13 +25,31 @@ const BLANK_POINT = {
 
 export default class EditPointView extends AbstractStatefulView {
   // #point = null;
+  #handleCloseFrom = null;
   #handleFormSubmit = null;
+  #handleDeleteClick = null;
   #datepickerStartTime = null;
   #datepickerEndTime = null;
+  #additionalOptions = null;
+
+  #formDeleteHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(EditPointView.parseStateToPoint(this._state));
+  };
+
+  #formCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleCloseFrom();
+  };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    // проверка даты: дата FROM должна быть раньше даты TO
+    if (isFromDateEarlierToDate(this._state.dateFrom, this._state.dateTo)) {
+      console.log('даты соответствуют формату');
+      this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
+    }
+
   };
 
   #dateFromChangeHandler = ([userDate]) => {
@@ -53,13 +72,10 @@ export default class EditPointView extends AbstractStatefulView {
       offers: [],
     });
 
-
   };
 
   #changeDestinationHandler = (evt) => {
     evt.preventDefault();
-    console.log(evt.target.value);
-
 
     this.updateElement({
       destination: this._state.allDestinations.find((destination) => destination.name === evt.target.value),
@@ -67,10 +83,48 @@ export default class EditPointView extends AbstractStatefulView {
 
   };
 
-  constructor({ point, onFormSubmit }) {
+  #changePriceHandler = (evt) => {
+    evt.preventDefault();
+
+    this.updateElement({
+      basePrice: evt.target.value,
+    });
+  };
+
+  #changeOfferHandler = (evt) => {
+    evt.preventDefault();
+
+    const offerId = evt.target.id;
+
+    const allTypeOffers = getAllOffersByType(this.#additionalOptions.allOffers, this._state.type);
+
+    const offerToAdd = allTypeOffers.find((offer) => offer.id === offerId);
+
+    const newOffers = this._state.offers;
+    const index = newOffers.findIndex((offer) => offer.id === offerId);
+
+    if (index !== -1) {
+      newOffers.splice(index, 1);
+    } else {
+      if (newOffers.length) {
+        newOffers.unshift(offerToAdd);
+      } else {
+        newOffers.push(offerToAdd);
+      }
+    }
+
+    this.updateElement({
+      offers: newOffers,
+    });
+  };
+
+  constructor({ point, additionalOptions, onCloseFormClick, onFormSubmit, onDeleteClick }) {
     super();
-    this._state = EditPointView.parsePointToState(point);
+    this.#additionalOptions = additionalOptions; // типы транспора, все города, все точки назначения, все предложения по типам
+    this._state = EditPointView.parsePointToState(point, this.#additionalOptions);
+    this.#handleCloseFrom = onCloseFormClick;
     this.#handleFormSubmit = onFormSubmit;
+    this.#handleDeleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
@@ -81,13 +135,29 @@ export default class EditPointView extends AbstractStatefulView {
 
   // обязательный для выполнения метод перерисовки
   _restoreHandlers() {
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler);
+    // нажатие на стрелку вверх аналогично нажатию на esc
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
+
+    // нажатие на кнопку delete
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteHandler);
+
+    // нажатие на кнопку save SUBMIT
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#formSubmitHandler);
 
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeHandler);
 
-    this.element.querySelector('#event-destination-1').addEventListener('change',this.#changeDestinationHandler);
+    this.element.querySelector('#event-destination-1').addEventListener('change', this.#changeDestinationHandler);
+
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
+
+    const offerElement = this.element.querySelector('.event__section--offers');
+
+    if(offerElement) {
+      offerElement.addEventListener('change', this.#changeOfferHandler,);
+    }
+
     // this.element.querySelector('').addEventListener('',);
-    // this.element.querySelector('').addEventListener('',);
+
     this.#setDatepicker();
   }
 
@@ -187,20 +257,35 @@ export default class EditPointView extends AbstractStatefulView {
       this.#datepickerEndTime = null;
     }
   }
+
+  /**
+   * @param {*} point сбрасываем объект точки, если нам не надо сохранять изменения
+   */
+  reset(point) {
+    this.updateElement(
+      EditPointView.parsePointToState(point, this.#additionalOptions)
+    );
+  }
+
   /*
-  * TODO: Добавить дополнительные поля, которые отвечают за отрисовку отдельных частей формы
-  * если будет массив с предложениями, то блок предложений отрисуется,
-  * если указано destination, то блок тоже отрисуется
-  *
   * ??? Если точка пустая, то что???
   */
 
-  static parsePointToState(point) {
-    return {
+  static parsePointToState(point, additionalOptions) {
+    // TODO|!!!!! универсальный метод и заменить его везде
+    const appliedOptions = point.offers.length ? getSelectedOffers(additionalOptions.allOffers, point.offers, point.type) : [];
+
+    const fullDescriptionDestination = additionalOptions.allDestinations.find((destination) => destination.id === point.destination);
+
+
+    const newPoint = {
       ...point,
-      isOffers: !!point.offers.length,
-      isDestination: !!point.destination,
+      offers: appliedOptions,
+      destination: fullDescriptionDestination,
+      ...additionalOptions,
     };
+
+    return newPoint;
   }
   /**
  * тут эти поля надо удалить
@@ -210,25 +295,21 @@ export default class EditPointView extends AbstractStatefulView {
   static parseStateToPoint(state) {
     const point = { ...state };
 
-    if (!point.isOffers) {
+    if (point.offers.length) {
+      point.offers = point.offers.map((offer) => offer.id);
+    } else {
       point.offers = [];
     }
 
-    if (!point.isDestination) {
-      point.destination = '';
-    }
-
     // заменяет поля с объектами на id
-    point.offers = point.offers.map((offer) => offer.id);
     point.destination = point.destination.id;
 
     // удаляем лишние поля
-    delete point.isOffers;
-    delete point.isDestination;
     delete point.allOffers;
     delete point.allDestinations;
     delete point.typesOptions;
     delete point.destinatiosOption;
+    console.log(point);
 
     return point;
   }

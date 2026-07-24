@@ -1,4 +1,7 @@
 import 'flatpickr/dist/flatpickr.min.css';
+import { getAllOffersByType, } from '../../utils/point';
+
+const getFirstTitleWord = (text) => text.trim().toLowerCase().split(/\s+/)[0];
 
 const createDestinationListTemplate = (destinations) => {
   // console.log(destinations);
@@ -30,16 +33,18 @@ const createTypeListTemplate = (types) => {
 };
 
 const createOffersTemplate = (point) => {
-  const allOffersByType = point.allOffers.find((offersByType) => offersByType.type === point.type);
+  // ToDo:
+  // если нет выбранных офферов то создаем просто все предложения серыми
+  // есл нет описания объекта
+  const allOffersByType = getAllOffersByType(point.allOffers, point.type);
   const idsSelectedOffers = new Set(point.offers.map((offer) => offer.id));
   let offersStr = '';
 
-
-  allOffersByType.offers.forEach((offer) => {
+  allOffersByType.forEach((offer) => {
     if(idsSelectedOffers.has(offer.id)) {
       offersStr += `<div class="event__offer-selector">
-                         <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" checked>
-                         <label class="event__offer-label" for="event-offer-comfort-1">
+                         <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${getFirstTitleWord(offer.title)}" checked>
+                         <label class="event__offer-label" for="${offer.id}">
                            <span class="event__offer-title">${offer.title}</span>
                            &plus;&euro;&nbsp;
                            <span class="event__offer-price">${offer.price}</span>
@@ -47,8 +52,8 @@ const createOffersTemplate = (point) => {
                        </div>`;
     } else {
       offersStr += `<div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort">
-                        <label class="event__offer-label" for="event-offer-comfort-1">
+                        <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${getFirstTitleWord(offer.title)}">
+                        <label class="event__offer-label" for="${offer.id}">
                           <span class="event__offer-title">${offer.title}</span>
                           &plus;&euro;&nbsp;
                           <span class="event__offer-price">${offer.price}</span>
@@ -56,13 +61,13 @@ const createOffersTemplate = (point) => {
                       </div>`;
     }
   });
-  return offersStr ? `<section class="event__section  event__section--offers">
+  return offersStr ? `
+          <section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
               <div class="event__available-offers">
               ${offersStr}
               </div>
-          </section>
-  ` : '';
+          </section>` : '';
 
 };
 

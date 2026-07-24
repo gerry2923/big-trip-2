@@ -1,9 +1,9 @@
 import { render } from '../framework/render';
 import ButtonNewView from '../view/button-new-view/button-new-view';
-import NewPointView from '../view/new-point-view/new-point-view';
+import EmptyPointView from '../view/empty-point-view/empty-point-view';
 import FilterPresenter from './filter-presenter';
 
-export default class NewPagePresenter {
+export default class EmptyPagePresenter {
   #message = null;
   #emptyHeader = null;
   #headerContainer = null;
@@ -11,13 +11,16 @@ export default class NewPagePresenter {
   #filterPresenter = null;
   #buttonNewView = null;
   #emptyMain = null;
+  #filterType = null;
   #mode = null;
 
-  constructor({ headerContainer, mainContainer, message, headerMode }) {
+  constructor({ headerContainer, mainContainer, filterType}) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
-    this.#message = message;
-    this.#mode = headerMode;
+    this.#filterType = filterType;
+    // this.#message = message; // заменить на filtertype
+    // this.#mode = headerMode;
+    console.log('ruru');
   }
 
   // новые точки еще не заданы, поэтому нет заголовка с точками маршрута
@@ -38,14 +41,16 @@ export default class NewPagePresenter {
   renderDisabledHeader() {
     throw new Error('данные загружаются');
   }
+
   // неактивная кнопка добавления новой точки
   setDisabledNewPointHeader() {
     throw new Error('произошла какая-то ошибка при загрузке');
   }
 
   renderMain() {
-    this.#emptyMain = new NewPointView(this.#message);
-    render(this.#emptyMain, this.#mainContainer)
+    // this.#message заменить на filtertype
+    this.#emptyMain = new EmptyPointView(this.#filterType);
+    render(this.#emptyMain, this.#mainContainer);
   }
 
   init() {
