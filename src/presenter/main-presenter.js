@@ -1,17 +1,18 @@
 import { render, remove } from '../framework/render';
-import { FilterTypes, UpdateType, UserAction } from '../const';
-import { SortType } from '../const';
+import { FilterTypes, SortTypes, UpdateType, UserAction } from '../const';
 import { sortDurationDown, sortPriceDown, sortClosestDayFirst } from '../utils/point';
+import { filter } from '../utils/filter';
 
 import SortView from '../view/sort-view/sort-view';
 import PointListView from '../view/point-list-view/point-list-view';
 import PointListItemView from '../view/point-list-item-view/point-list-item-view';
 import PointPresenter from './point-presenter';
-import NewPointPresenter from '../presenter/new-point-presenter';
+import NewPointPresenter from './_new-point-presenter';
 import EmptyPointView from '../view/empty-point-view/empty-point-view';
 
 export default class MainPresenter {
   #mainContainer = null;
+  #filtersModel = null;
   #pointsModel = null;
 
   #pointListComponent = null;
@@ -27,7 +28,7 @@ export default class MainPresenter {
   #selectElementsData = null;
   listItem = null;
 
-  #currentSortType = SortType.DAY;
+  #currentSortType = SortTypes.DAY;
   #filterType = FilterTypes.EVERYTHING;
 
 
@@ -92,8 +93,9 @@ export default class MainPresenter {
   };
 
 
-  constructor({ mainContainer, pointsModel, offers, destinations }) {
+  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations }) {
     this.#mainContainer = mainContainer;
+    this.#filtersModel = filtersModel;
     this.#pointsModel = pointsModel;
     this.#offers = offers;
     this.#destinations = destinations;
@@ -101,46 +103,52 @@ export default class MainPresenter {
 
     // тут же создать NewPointPresenter, для СОЗДАНИЯ  НОВОЙ ТОЧКИ маршрута
     // ее будем отрисовывать, когда добавим точку маршрута
-    this.#addNewPointPresenter = new NewPointPresenter();
+    this.#addNewPointPresenter = new NewPointPresenter({
+      newPointContainer: this.#pointListComponent,
+      onDataChange: this.#handleViewAction,
+      // onDestroy: ,
+    });
 
     // добавляем подписку на изменение модели. Если что-то изменится, будем вызывать метод handleModelPoint и пререрисовывать части или страницу целиком
 
     this.#pointsModel.addObserver(this.#handleModelPoint);
-    console.log(`current sort type ${this.#currentSortType}`);
+    this.#filtersModel.addObserver(this.#handleModelPoint);
 
+    console.log(`current sort type ${this.#currentSortType}`);
   }
 
   get points() {
+    this.#filterType = this.#filtersModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[this.#filterType](points);
+    console.log(filteredPoints);
+
     switch (this.#currentSortType) {
-      case SortType.PRICE:
-        return [...this.#pointsModel.points].sort(sortPriceDown);
-      case SortType.TIME:
-        return [...this.#pointsModel.points].sort(sortDurationDown);
+      case SortTypes.PRICE:
+        return filteredPoints.sort(sortPriceDown);
+      case SortTypes.TIME:
+        return filteredPoints.sort(sortDurationDown);
 
     }
-    return this.#pointsModel.points;
+    return filteredPoints;
   }
 
-  #sortPoints(sortType) {
+  // TODO !!!
+  createPoint() {
+    /**
+     * 1. создать пустой шаблон данных
+     * 2. создать презентер пустой точки new PointPresenter()
+     *    в параметры добавить все для пустой точки
+     * 3. в новой точке отрисовываем сначала форму редактирования
+     * 4. При закрытии формы
+     *      - разблокировать кнопку new
+     *      - Если точку не сохранили, то удаляем этот презентер
+     *      - Если точку сохранили, до добавляем его в сет презентеров
+     *
+     * !! проверь еще раз нужен ли презентер для кнопки "Добавить новую точку" ?
+     */
 
-    // проверяем какой тип сортировки. В зависимости от типа, применяем функцию либо sortPriceDown, либо sortDurationDown. По умолчанию копируем массив-источник. Сортировка от максимального к минимальному значению
-    switch (sortType) {
-      case SortType.PRICE:
-        this.#pointsModel.points.sort(sortPriceDown);
-        break;
-
-      case SortType.TIME:
-        this.#pointsModel.points.sort(sortDurationDown);
-        break;
-
-      default:
-        // this.#pointsModel.points = [...this.#pointsModel.points];
-        // sortClosestDayFirst('2026-07-24T11:30:00.000Z', '2026-07-24T11:35:00.000Z');
-        this.#pointsModel.points.sort(sortClosestDayFirst);
-        break;
-    }
-    console.log(`current sort type ${this.#currentSortType}`);
-    this.#currentSortType = sortType;
+    console.log('создаем новую точку');
   }
 
   renderSort() {
@@ -152,15 +160,12 @@ export default class MainPresenter {
     render(this.#sortComponent, this.#mainContainer);
   }
 
-  renderList() {
+  renderList(points) {
     // 1. создаем элемент ul для содержания элементов списка
     this.#pointListComponent = new PointListView();
     render(this.#pointListComponent, this.#mainContainer);
 
-    // 2. ПРОБЕГАЕМСЯ ПО ВСЕМ ТОЧКАМ МАРШРУТА создаем set из представлений[presenter] точек
-    this.#pointsModel.points.forEach((pointItem) => {
-      this.renderPoint(pointItem);
-    });
+    points.forEach((pointItem) => this.renderPoint(pointItem));
   }
 
   renderPoint(pointItem) {
@@ -171,13 +176,11 @@ export default class MainPresenter {
 
     // 3.2. создали презентер (В презентере будет создано краткое описание точки и форма)
     this.#pointPresenter = new PointPresenter({
-      // pointContainer: this.#pointListComponent.element.lastElementChild,
       pointItemContainer: pointListItemComponent,
       offers: this.#offers,
       destinations: this.#destinations,
       selectsContent: this.#selectElementsData,
 
-      // onDataChange: this.#handlePointChange,
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
@@ -190,7 +193,7 @@ export default class MainPresenter {
   }
 
   renderNoPoint() {
-    this.#noPointComponent = new EmptyPointView({ filterType: this.#filterType });
+    this.#noPointComponent = new EmptyPointView({ filterType: this.#filtersModel.filter });
     render(this.#noPointComponent, this.#mainContainer);
   }
 
@@ -212,28 +215,27 @@ export default class MainPresenter {
     // !!! TODO: настроить систему оповещания при изменении внутренностей, менять значения в шапке
     // поставить тип сортировки в значение по умолчанию
     if (resetSortType) {
-      this.#currentSortType = SortType.DAY;
+      console.log('устанавливаем сортировку на дни');
+      this.#currentSortType = SortTypes.DAY;
     }
 
     console.log('clear main page');
   }
 
   init() {
-    // массив начальных точек
-    // this.#sourcePoints = [...this.#pointsModel.points];
-    // console.log(this.#sourcePoints);
-
 
     // проверяем, есть ли точки в массиве в принципе, если есть, то рисуем, если нет, то отображаем пустую страницу с сообщением
-    const pointsLength = this.#pointsModel.points.length;
+    const points = this.points;
+    console.log(this.#filtersModel.filter);
+    console.log(`точки ${points} end`);
+    const pointsLength = points.length;
 
     if(pointsLength === 0) {
       this.renderNoPoint();
       return;
     }
     console.log('перерисовка');
-    this.#sortPoints(this.#currentSortType);
     this.renderSort();
-    this.renderList();
+    this.renderList(points);
   }
 }

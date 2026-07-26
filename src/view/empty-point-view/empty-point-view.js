@@ -4,9 +4,10 @@ import { createEmptyPointTemplate } from './empty-point-template';
 export default class EmptyPointView extends AbstractView{
   #filterType = null;
 
-  constructor(filterType) {
+  constructor({filterType}) {
     super();
     this.#filterType = filterType;
+    console.log(this.#filterType);
   }
 
   get template() {

@@ -1,43 +1,40 @@
 import PointsModel from './model/points-model';
+import FilterModel from './model/filter-model';
+
 import PagePresenter from './presenter/page-presenter';
-import { clearElement } from './utils/common';
+import EmptyPagePresenter from './presenter/_empty-page-presenter';
+
 import { offers } from './moks/mock-offers';
 import { destinationPoints } from './moks/mock-destination';
-import { MESSAGES } from './const';
-import NewPagePresenter from './presenter/empty-page-presenter';
+
+import { clearElement } from './utils/common';
+
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 
 const siteBodyElement = document.querySelector('.page-body');
 const siteHeaderElement = siteBodyElement.querySelector('.trip-main');
 const siteMainElement = siteBodyElement.querySelector('.trip-events');
+const filterModel = new FilterModel();
 const sitePointsModel = new PointsModel(); // добавляет данные с сервера
 const siteOffers = offers;
 const siteDestination = destinationPoints;
 
 clearElement(siteHeaderElement);
 
-// TODO-1: если данные в процессе загрузки mode - 1
-// TODO-2: если данные не загрузились mode - 2
-// TODO-3: если добавленных точек нет mode - 3
+/**  добавить загрузку  сервера
+ * данные не загрузились
+ * загрузка все еще идет
+*/
 
-// если есть данные для отображения
-// if (sitePointsModel.points.length) {
 const contentPresenter = new PagePresenter({
   headerContainer: siteHeaderElement,
   mainContainer: siteMainElement,
   pointsModel: sitePointsModel,
+  filtersModel: filterModel,
   offers: siteOffers,
   destinations: siteDestination
 });
 
 contentPresenter.init();
-// если данных для отображения нет
-// } else {
-//   const newPagePresenter = new NewPagePresenter({
-//     headerContainer: siteHeaderElement,
-//     mainContainer: siteMainElement,
-//     message: MESSAGES.addNew, // check messages
-//     headerMode: 3
-//   });
-
-//   newPagePresenter.init();
-// }

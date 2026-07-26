@@ -6,7 +6,7 @@ export default class SortView extends AbstractView {
   #currentSortType = null;
 
   #sortTypeChange = (evt) => {
-
+    console.log('нажали на сортировку');
     // делаем проверку на что мы кликнули. Должен быть тэг A
     if(evt.target.tagName !== 'LABEL') {
       return;
