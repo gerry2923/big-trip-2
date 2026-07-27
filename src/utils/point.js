@@ -38,10 +38,10 @@ export const sortDurationDown = (pointA, pointB) => {
   return durationB - durationA;
 };
 
-export const sortClosestDayFirst = (pointA, pointB) => {
-  const weight = getWeightForNullDate(pointA.dateFrom, pointB.dateFrom);
-  return weight ?? dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
-};
+// export const sortClosestDayFirst = (pointA, pointB) => {
+//   const weight = getWeightForNullDate(pointA.dateFrom, pointB.dateFrom);
+//   return weight ?? dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+// };
 
 export const getAllOffersByType = (offers, type = 'flight') => {
   const isValid = !!offers.length && Array.isArray(offers) && typeof type === 'string';

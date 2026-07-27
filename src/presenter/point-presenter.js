@@ -3,6 +3,7 @@ import { remove, render, replace } from '../framework/render';
 import { isDateEquall } from '../utils/point';
 
 import EditPointView from '../view/edit-point-view/edit-point-view';
+import NewPointView from '../view/new-point-view/new-point-view';
 import PointView from '../view/point-view/point-view';
 
 const Mode = {
@@ -13,18 +14,25 @@ const Mode = {
 export default class PointPresenter {
 
   #pointContainerComponent = null;
+  #editPointComponent = null;
+  #pointComponent = null;
+  #newPointComponent = null;
+
   #pointContainer = null;
   #pointData = null;
+
   #offers = null;
   #destinations = null;
   #destination = null;
-  #editPointComponent = null;
-  #pointComponent = null;
   #pointOffers = null;
+
   #selectDestinationsOptions = null;
   #selectTypeOptions = null;
+
   #handleDataChange = null;
   #handleModeChange = null;
+  #handleNewPointDelete = null;
+
   #mode = Mode.DEFAULT;
 
   #escKeyDownHandler = (evt) => {
@@ -51,20 +59,21 @@ export default class PointPresenter {
   };
 
   // в update находятся данные точки
-  #handelFormSubmit = (update) => {
+  #handelEditFormSubmit = (update) => {
     // обработка отправки формы
     /**
      * нужно проверить, поменялись ли в задаче данные, которые попадают под ФИЛЬТРАЦИЮ, а значит требуют перерисовки списка, если таких нет, то это patch - обновление, т.е. точечное, если поменялось, то уже minor, т.е. с перерисовкой всех данных согласно условию фильтрации
      */
 
-    console.log(update);
-    const isMinorUpdate = !isDateEquall(this.#pointData.dateFrom, update.dateFrom) ||
+    // console.log(update);
+    const isMinorUpdate =
+      !isDateEquall(this.#pointData.dateFrom, update.dateFrom) ||
       !isDateEquall(this.#pointData.dateTo, update.dateTo);
-    console.log('is minor?');
-    console.log(isMinorUpdate);
+    // console.log('is minor?');
+    // console.log(isMinorUpdate);
 
-    const some = isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH;
-    console.log(some);
+    // const some = isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH;
+    // console.log(some);
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
@@ -82,8 +91,26 @@ export default class PointPresenter {
     );
   };
 
+  // сохраняем новую точку
+  #handelNewFormSubmit = (point) => {
+    this.#handleDataChange(
+      UserAction.ADD_POINT,
+      UpdateType.MINOR,
+      point,
+    );
+  };
 
-  constructor({ pointItemContainer, offers, destinations, selectsContent, onDataChange, onModeChange }) {
+  // Этот обработчик используется только при создании новой точки
+  #handleCancelButtonClick = () => {
+    console.log('закрываем форму');
+    // удаляем все view и саму точку нового презентера
+    this.destroy();
+
+    this.#handleNewPointDelete();
+  };
+
+
+  constructor({ pointItemContainer, offers, destinations, selectsContent, onDataChange, onModeChange, onNewPointDelete = null}) {
     this.#pointContainerComponent = pointItemContainer;
     this.#pointContainer = this.#pointContainerComponent.element;
     this.#offers = offers;
@@ -92,6 +119,8 @@ export default class PointPresenter {
     this.#selectTypeOptions = selectsContent.typesOptions;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
+    this.#handleNewPointDelete = onNewPointDelete;
+
   }
 
   #replaceCardToForm() {
@@ -137,7 +166,15 @@ export default class PointPresenter {
 
   destroy() {
     remove(this.#pointComponent);
-    remove(this.#editPointComponent);
+
+    if(this.#editPointComponent) {
+      remove(this.#editPointComponent);
+    }
+
+    if(this.#newPointComponent) {
+      remove(this.#newPointComponent);
+    }
+
     remove(this.#pointContainerComponent);
   }
 
@@ -175,7 +212,7 @@ export default class PointPresenter {
         destinationsOptions: this.#selectDestinationsOptions,
       },
       onCloseFormClick: this.#handleCloseFrom,
-      onFormSubmit: this.#handelFormSubmit,
+      onFormSubmit: this.#handelEditFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
     });
 
@@ -200,8 +237,49 @@ export default class PointPresenter {
     remove(prevEditPointComponent);
   }
 
+  renderNewPoint() {
+    this.#pointComponent = new PointView({
+      point: {
+        ...this.#pointData,
+        allOffers: [],
+      },
+
+      onEditClick: () => {
+        this.#replaceCardToForm();
+      },
+
+      onFavouriteClick: this.#handleFavouriteClick,
+    });
+
+    // создаем компонент точки редактирования
+    // добавляем все типы транспорта, города и опцию показа формы
+    this.#newPointComponent = new NewPointView({
+      point: this.#pointData,
+      additionalOptions: {
+
+        allOffers: this.#offers,
+        allDestinations: this.#destinations,
+
+        typesOptions: this.#selectTypeOptions,
+        destinationsOptions: this.#selectDestinationsOptions,
+      },
+      onCloseFormClick: this.#handleCloseFrom,
+      onFormSubmit: this.#handelNewFormSubmit,
+      // заменить на onCancelClick
+      onCancelClick: this.#handleCancelButtonClick,
+    });
+
+    render(this.#pointComponent, this.#pointContainer);
+    this.#mode = Mode.EDITING;
+  }
+
   init(point) {
+    // проверяем наличие id. Если есть, то отрисовываем как нормальнгую точк, если нет - то как новую
     this.#pointData = point;
-    this.renderPoint();
+    if (this.#pointData.id !== '') {
+      this.renderPoint();
+      return;
+    }
+    this.renderNewPoint();
   }
 }

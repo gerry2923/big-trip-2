@@ -1,5 +1,5 @@
 import AbstractView from '../../framework/view/abstract-view';
-import { createEmptyPointTemplate } from './empty-point-template';
+import { createEmptyPointTemplate } from './no-point-template';
 
 export default class EmptyPointView extends AbstractView{
   #filterType = null;

@@ -1,6 +1,6 @@
 import { render, remove } from '../framework/render';
 import { FilterTypes, SortTypes, UpdateType, UserAction } from '../const';
-import { sortDurationDown, sortPriceDown, sortClosestDayFirst } from '../utils/point';
+import { sortDurationDown, sortPriceDown } from '../utils/point';
 import { filter } from '../utils/filter';
 
 import SortView from '../view/sort-view/sort-view';
@@ -8,7 +8,7 @@ import PointListView from '../view/point-list-view/point-list-view';
 import PointListItemView from '../view/point-list-item-view/point-list-item-view';
 import PointPresenter from './point-presenter';
 import NewPointPresenter from './_new-point-presenter';
-import EmptyPointView from '../view/empty-point-view/empty-point-view';
+import NoPointView from '../view/no-point-view/no-point-view';
 
 export default class MainPresenter {
   #mainContainer = null;
@@ -21,7 +21,7 @@ export default class MainPresenter {
 
   #pointPresenters = new Map();
   #pointPresenter = null;
-  #addNewPointPresenter = null;
+  #newPointPresenter = null;
 
   #offers = null;
   #destinations = null;
@@ -84,6 +84,7 @@ export default class MainPresenter {
         this.#pointsModel.updatePoint(updateType, update);
         break;
       case UserAction.ADD_POINT:
+        this.#pointPresenters.set(update.id, this.#newPointPresenter); //??
         this.#pointsModel.addPoint(updateType, update);
         break;
       case UserAction.DELETE_POINT:
@@ -92,6 +93,9 @@ export default class MainPresenter {
     }
   };
 
+  #handleNewPointDelete = () => {
+    // передать разблокировку для кнопки new event
+  };
 
   constructor({ mainContainer, filtersModel, pointsModel, offers, destinations }) {
     this.#mainContainer = mainContainer;
@@ -103,11 +107,12 @@ export default class MainPresenter {
 
     // тут же создать NewPointPresenter, для СОЗДАНИЯ  НОВОЙ ТОЧКИ маршрута
     // ее будем отрисовывать, когда добавим точку маршрута
-    this.#addNewPointPresenter = new NewPointPresenter({
-      newPointContainer: this.#pointListComponent,
-      onDataChange: this.#handleViewAction,
-      // onDestroy: ,
-    });
+    // ЭТО ЗАРАНЕЕ СОЗДАВАТЬ НЕ БУДЕМ!!!!!!
+    // this.#addNewPointPresenter = new NewPointPresenter({
+    //   newPointContainer: this.#pointListComponent,
+    //   onDataChange: this.#handleViewAction,
+    //   // onDestroy: ,
+    // });
 
     // добавляем подписку на изменение модели. Если что-то изменится, будем вызывать метод handleModelPoint и пререрисовывать части или страницу целиком
 
@@ -135,18 +140,47 @@ export default class MainPresenter {
 
   // TODO !!!
   createPoint() {
-    /**
-     * 1. создать пустой шаблон данных
-     * 2. создать презентер пустой точки new PointPresenter()
-     *    в параметры добавить все для пустой точки
-     * 3. в новой точке отрисовываем сначала форму редактирования
-     * 4. При закрытии формы
-     *      - разблокировать кнопку new
-     *      - Если точку не сохранили, то удаляем этот презентер
-     *      - Если точку сохранили, до добавляем его в сет презентеров
-     *
-     * !! проверь еще раз нужен ли презентер для кнопки "Добавить новую точку" ?
-     */
+
+    //  * 1. создать пустой шаблон данных
+    const newPointTemplate = {
+      id: '',
+      basePrice: 0,
+      dateFrom: '',
+      dateTo: '',
+      destination: '',
+      isFavorite: false,
+      offers: [],
+      type: 'flight'
+    };
+    //  * 2. создать презентер пустой точки new PointPresenter()
+    //  *    в параметры добавить все для пустой точки
+    // a) создали li - элемент и отрисовали его (при открытии формы, он уже должен быть)
+    const pointListItemComponent = new PointListItemView();
+    render(pointListItemComponent, this.#pointListComponent.element);
+
+    // b) создали презентер (В презентере будет создано краткое описание точки и форма)
+    this.#newPointPresenter = new PointPresenter({
+      pointItemContainer: pointListItemComponent,
+      offers: this.#offers,
+      destinations: this.#destinations,
+      selectsContent: this.#selectElementsData,
+
+      onDataChange: this.#handleViewAction,
+      onModeChange: this.#handleModeChange,
+      onNewPointDelete: this.#handleNewPointDelete,
+    });
+
+    // c) инициировали и отрисовали точку
+    this.#newPointPresenter.init(newPointTemplate);
+
+
+    //  * 3. в новой точке отрисовываем сначала форму редактирования
+    //  * 4. При закрытии формы
+    //  *      - разблокировать кнопку new
+    //  *      - Если точку не сохранили, то удаляем этот презентер
+    //  *      - Если точку сохранили, до добавляем его в сет презентеров
+    //  *
+    //  * !! проверь еще раз нужен ли презентер для кнопки "Добавить новую точку" ?
 
     console.log('создаем новую точку');
   }
@@ -154,7 +188,8 @@ export default class MainPresenter {
   renderSort() {
     this.#sortComponent = new SortView({
       currentSortType: this.#currentSortType,
-      onSortTypeChange: this.#handleSortTypeChange });
+      onSortTypeChange: this.#handleSortTypeChange
+    });
 
 
     render(this.#sortComponent, this.#mainContainer);
@@ -193,7 +228,7 @@ export default class MainPresenter {
   }
 
   renderNoPoint() {
-    this.#noPointComponent = new EmptyPointView({ filterType: this.#filtersModel.filter });
+    this.#noPointComponent = new NoPointView({ filterType: this.#filtersModel.filter });
     render(this.#noPointComponent, this.#mainContainer);
   }
 
@@ -208,7 +243,7 @@ export default class MainPresenter {
     remove(this.#pointListComponent);
     // если был создан компонент для случая отстутствия точек маршрута, то его надо тоже удалить. У меня это newPagePresenter. В нем создается и шапка и основная часть.
 
-    if(this.#noPointComponent) {
+    if (this.#noPointComponent) {
       remove(this.#noPointComponent);
     }
 
@@ -230,7 +265,7 @@ export default class MainPresenter {
     console.log(`точки ${points} end`);
     const pointsLength = points.length;
 
-    if(pointsLength === 0) {
+    if (pointsLength === 0) {
       this.renderNoPoint();
       return;
     }
