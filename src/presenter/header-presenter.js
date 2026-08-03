@@ -1,10 +1,8 @@
 
 import { render } from '../framework/render';
 import TripInfoView from '../view/trip-info-view/trip-info-view';
-// import FilterView from '../view/filter-view/filter-view';
-import ButtonNewView from '../view/new-button-view/new-button-view';
 import FilterPresenter from './filter-presenter';
-import NewButtonView from '../view/new-button-view/new-button-view';
+import AddPointButtonView from '../view/add-point-button-view/add-point-button-view';
 
 
 /**
@@ -26,12 +24,11 @@ export default class HeaderPresenter {
   #destinationNames = null;
   #totalPrice = null;
 
-  #handleNewButtonClick = null;
+  #addPointButtonClickHandler = null;
 
 
-  #newButtonClickHandler = () => {
-    // evt.preventDefault();
-    this.#handleNewButtonClick();
+  #handleAddPointButtonClick = () => {
+    this.#addPointButtonClickHandler();
   };
 
   #extractModelCityNames = () => {
@@ -55,13 +52,13 @@ export default class HeaderPresenter {
   };
 
 
-  constructor({ pointsModel, filtersModel, destinations, headerContainer, onButtonClick }) {
+  constructor({ pointsModel, filtersModel, destinations, headerContainer, onAddPointButtonClick }) {
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
     this.#headerContainer = headerContainer;
     this.#allDestinations = destinations;
     // this.#newButtonPresenter = newButtonPresenter;
-    this.#handleNewButtonClick = onButtonClick;
+    this.#addPointButtonClickHandler = onAddPointButtonClick;
 
     if (this.#pointsModel.points !== null || this.#pointsModel.points.length !== 0) {
       this.#extractModelCityNames(destinations);
@@ -76,7 +73,6 @@ export default class HeaderPresenter {
     3. фильтр
     4. кнопка
   */
-
 
   #renderTripInfo() {
     this.#tripInfoComponent = new TripInfoView({
@@ -96,6 +92,11 @@ export default class HeaderPresenter {
     this.#filterPresenter.init();
   }
 
+  // предполагается, что компоненты обновляются только при создании и редактировании
+  toggleAddPointButtonState() {
+    this.#newButtonComponent.element.disabled = this.#newButtonComponent.element.disabled ? false : true;
+  }
+
   init() {
 
     if(this.#pointsModel.points.length !== 0) {
@@ -105,8 +106,8 @@ export default class HeaderPresenter {
     this.#renderFilter();
     // this.#newButtonPresenter.init(this.#headerContainer);
 
-    this.#newButtonComponent = new NewButtonView({
-      onButtonClick: this.#newButtonClickHandler,
+    this.#newButtonComponent = new AddPointButtonView({
+      onButtonClick: this.#handleAddPointButtonClick,
     });
 
     render(this.#newButtonComponent, this.#headerContainer);

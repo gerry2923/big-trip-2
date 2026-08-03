@@ -3,6 +3,7 @@
 import HeaderPresenter from './header-presenter';
 import MainPresenter from './main-presenter';
 import NewButtonPresenter from './_new-button-presenter';
+
 /**
  * Этот презентер будет связывать шапку и основную часть
  */
@@ -16,11 +17,16 @@ export default class PagePresenter {
   #offers = null;
   #destinations = null;
 
-  #newButtonPresenter = null;
 
   // создаем пустую точку
-  #handleNewbuttonClick = () => {
+  // новая точка уже деактивирована
+  #addPointButtonClickHandler = () => {
+    this.#headerPresenter.toggleAddPointButtonState();
     this.#mainContentPresenter.createPoint();
+  };
+
+  #handleNewPointChange = () => {
+    this.#headerPresenter.toggleAddPointButtonState();
   };
 
   constructor({ headerContainer, mainContainer, filtersModel, pointsModel, offers, destinations }) {
@@ -42,6 +48,7 @@ export default class PagePresenter {
       pointsModel: this.#pointsModel,
       offers: this.#offers,
       destinations: this.#destinations,
+      onNewPointChange: this.#handleNewPointChange,
     });
 
     // this.#newButtonPresenter = new NewButtonPresenter({
@@ -55,7 +62,7 @@ export default class PagePresenter {
       destinations: this.#destinations,
       headerContainer: this.#headerContainer,
       // newButtonPresenter: this.#newButtonPresenter,
-      onButtonClick: this.#handleNewbuttonClick,
+      onAddPointButtonClick: this.#addPointButtonClickHandler,
     });
 
     this.#headerPresenter.init();

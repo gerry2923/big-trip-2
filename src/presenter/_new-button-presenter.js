@@ -1,4 +1,4 @@
-import NewButtonView from '../view/new-button-view/new-button-view';
+import NewButtonView from '../view/add-point-button-view/add-point-button-view';
 import { render } from '../framework/render';
 
 export default class NewButtonPresenter {

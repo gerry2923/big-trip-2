@@ -9,6 +9,7 @@ import PointListItemView from '../view/point-list-item-view/point-list-item-view
 import PointPresenter from './point-presenter';
 import NewPointPresenter from './_new-point-presenter';
 import NoPointView from '../view/no-point-view/no-point-view';
+import { nanoid } from 'nanoid';
 
 export default class MainPresenter {
   #mainContainer = null;
@@ -31,6 +32,7 @@ export default class MainPresenter {
   #currentSortType = SortTypes.DAY;
   #filterType = FilterTypes.EVERYTHING;
 
+  #newPointEventHandler = null;
 
   #handleModeChange = () => {
     this.#pointPresenters.forEach((presenter) =>
@@ -84,7 +86,6 @@ export default class MainPresenter {
         this.#pointsModel.updatePoint(updateType, update);
         break;
       case UserAction.ADD_POINT:
-        this.#pointPresenters.set(update.id, this.#newPointPresenter); //??
         this.#pointsModel.addPoint(updateType, update);
         break;
       case UserAction.DELETE_POINT:
@@ -93,16 +94,15 @@ export default class MainPresenter {
     }
   };
 
-  #handleNewPointDelete = () => {
-    // передать разблокировку для кнопки new event
-  };
 
-  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations }) {
+  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations, onNewPointChange}) {
     this.#mainContainer = mainContainer;
     this.#filtersModel = filtersModel;
     this.#pointsModel = pointsModel;
     this.#offers = offers;
     this.#destinations = destinations;
+    this.#newPointEventHandler = onNewPointChange;
+
     this.#selectElementsData = this.#pointsModel.selectElementsOptions; // объект с типами и городами
 
     // тут же создать NewPointPresenter, для СОЗДАНИЯ  НОВОЙ ТОЧКИ маршрута
@@ -125,6 +125,7 @@ export default class MainPresenter {
   get points() {
     this.#filterType = this.#filtersModel.filter;
     const points = this.#pointsModel.points;
+
     const filteredPoints = filter[this.#filterType](points);
     console.log(filteredPoints);
 
@@ -142,7 +143,7 @@ export default class MainPresenter {
   createPoint() {
 
     //  * 1. создать пустой шаблон данных
-    const newPointTemplate = {
+    const BLANK_POINT = {
       id: '',
       basePrice: 0,
       dateFrom: '',
@@ -156,7 +157,7 @@ export default class MainPresenter {
     //  *    в параметры добавить все для пустой точки
     // a) создали li - элемент и отрисовали его (при открытии формы, он уже должен быть)
     const pointListItemComponent = new PointListItemView();
-    render(pointListItemComponent, this.#pointListComponent.element);
+    render(pointListItemComponent, this.#pointListComponent.element, 'afterbegin');
 
     // b) создали презентер (В презентере будет создано краткое описание точки и форма)
     this.#newPointPresenter = new PointPresenter({
@@ -167,12 +168,15 @@ export default class MainPresenter {
 
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
-      onNewPointDelete: this.#handleNewPointDelete,
+      onAddNewButtonChange: this.#newPointEventHandler,
     });
 
+    this.#newPointPresenter.isNewPoint = true;
+    // нужно передать id, чтобы в презентере был презентер с id
     // c) инициировали и отрисовали точку
-    this.#newPointPresenter.init(newPointTemplate);
+    this.#newPointPresenter.init({...BLANK_POINT, ...{id: nanoid()}});
 
+    // this.#pointPresenters.set(BLANK_POINT.id, this.#pointPresenter);
 
     //  * 3. в новой точке отрисовываем сначала форму редактирования
     //  * 4. При закрытии формы
@@ -218,8 +222,8 @@ export default class MainPresenter {
 
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
+      onNewPointStateChange: this.#newPointEventHandler,
     });
-
     // 3.3. инициировали и отрисовали точку
     this.#pointPresenter.init(pointItem);
 
@@ -234,10 +238,12 @@ export default class MainPresenter {
 
   /** Основная задача удалить все презентеры, которые привязаны к старым данным */
   clearMainPage(resetSortType = true) {
+     console.log(`point presenter size = ${this.#pointPresenters.size}`)
     // удалить презентеры для создания точки маршрута по данным и точки редактирования
     this.#pointPresenters.forEach((pointPresenter) => pointPresenter.destroy());
     // удалить все презентеры из сета презентеров
     this.#pointPresenters.clear();
+
     // удалить презентер создания точки маршрута
     remove(this.#sortComponent);
     remove(this.#pointListComponent);
@@ -261,8 +267,8 @@ export default class MainPresenter {
 
     // проверяем, есть ли точки в массиве в принципе, если есть, то рисуем, если нет, то отображаем пустую страницу с сообщением
     const points = this.points;
-    console.log(this.#filtersModel.filter);
-    console.log(`точки ${points} end`);
+    // console.log(this.#filtersModel.filter);
+    // console.log(`точки ${points} end`);
     const pointsLength = points.length;
 
     if (pointsLength === 0) {

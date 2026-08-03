@@ -1,5 +1,5 @@
 import { render } from '../framework/render';
-import NewButtonView from '../view/new-button-view/new-button-view';
+import NewButtonView from '../view/add-point-button-view/add-point-button-view';
 import EmptyPointView from '../view/no-point-view/no-point-view';
 import FilterPresenter from './filter-presenter';
 

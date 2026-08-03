@@ -77,7 +77,7 @@ export default class PointsModel extends Observable {
     ];
 
     this._notify(updateType);
-    console.log('что-то оудалили');
+    console.log('что-то удалили');
   }
 
 }

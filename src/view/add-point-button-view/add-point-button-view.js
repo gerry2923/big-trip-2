@@ -1,14 +1,15 @@
 import AbstractView from '../../framework/view/abstract-view';
-import { createNewButtonTemplate } from './new-button-template';
+import { createAddPointButtonTemplate } from './add-point-button-template';
 
-export default class NewButtonView extends AbstractView{
+export default class AddPointButtonView extends AbstractView{
 
   #handleButtonClick = null;
 
   #buttonClickHandler = (evt) => {
     console.log(evt.target);
-    // evt.preventDefault();
-    evt.target.disabled = true;
+    evt.preventDefault();
+    console.log(`кнопка заблокирована - ${evt.target.disabled}`);
+    // evt.target.disabled = true;
     this.#handleButtonClick();
   };
 
@@ -20,6 +21,7 @@ export default class NewButtonView extends AbstractView{
   }
 
   get template() {
-    return createNewButtonTemplate();
+    return createAddPointButtonTemplate();
   }
+
 }

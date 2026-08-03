@@ -31,9 +31,10 @@ export default class PointPresenter {
 
   #handleDataChange = null;
   #handleModeChange = null;
-  #handleNewPointDelete = null;
+  #handleNewPointButtonEvent = null;
 
   #mode = Mode.DEFAULT;
+  #isPointNew = false;
 
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
@@ -101,16 +102,24 @@ export default class PointPresenter {
   };
 
   // Этот обработчик используется только при создании новой точки
-  #handleCancelButtonClick = () => {
+  #handleCancelClick = () => {
     console.log('закрываем форму');
     // удаляем все view и саму точку нового презентера
     this.destroy();
 
-    this.#handleNewPointDelete();
+    this.#handleNewPointButtonEvent();
   };
 
 
-  constructor({ pointItemContainer, offers, destinations, selectsContent, onDataChange, onModeChange, onNewPointDelete = null}) {
+  constructor({
+    pointItemContainer,
+    offers,
+    destinations,
+    selectsContent,
+    onDataChange,
+    onModeChange,
+    onAddNewButtonChange }) {
+
     this.#pointContainerComponent = pointItemContainer;
     this.#pointContainer = this.#pointContainerComponent.element;
     this.#offers = offers;
@@ -119,8 +128,16 @@ export default class PointPresenter {
     this.#selectTypeOptions = selectsContent.typesOptions;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
-    this.#handleNewPointDelete = onNewPointDelete;
+    this.#handleNewPointButtonEvent = onAddNewButtonChange;
 
+  }
+
+  set isNewPoint (isNew) {
+    this.#isPointNew = isNew;
+  }
+
+  get isNewPoint() {
+    return this.#isPointNew;
   }
 
   #replaceCardToForm() {
@@ -211,12 +228,17 @@ export default class PointPresenter {
         typesOptions: this.#selectTypeOptions,
         destinationsOptions: this.#selectDestinationsOptions,
       },
+      isPointNew: this.isNewPoint,
       onCloseFormClick: this.#handleCloseFrom,
       onFormSubmit: this.#handelEditFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
+      onCancelClick: this.#handleCancelClick, // изменение состояния кнопки
+      onNewFromSubmit: this.#handelNewFormSubmit,
+      onAddNewButtonClick: this.#handleNewPointButtonEvent,
     });
 
     // если инициализировали компонент один раз и точка еще не создана
+    // Это нужно, если у нас уже есть выбранные точки, но мы их отрисовываем первый раз на экране
     if (prevPointComponent === null || prevEditPointComponent === null) {
       render(this.#pointComponent, this.#pointContainer);
       return;
@@ -241,7 +263,7 @@ export default class PointPresenter {
     this.#pointComponent = new PointView({
       point: {
         ...this.#pointData,
-        allOffers: [],
+        allOffers: [], // предложения, которые выбрал пользователь
       },
 
       onEditClick: () => {
@@ -253,7 +275,7 @@ export default class PointPresenter {
 
     // создаем компонент точки редактирования
     // добавляем все типы транспорта, города и опцию показа формы
-    this.#newPointComponent = new NewPointView({
+    this.#newPointComponent = new EditPointView({
       point: this.#pointData,
       additionalOptions: {
 
@@ -263,23 +285,38 @@ export default class PointPresenter {
         typesOptions: this.#selectTypeOptions,
         destinationsOptions: this.#selectDestinationsOptions,
       },
+      isPointNew: this.isNewPoint,
       onCloseFormClick: this.#handleCloseFrom,
-      onFormSubmit: this.#handelNewFormSubmit,
-      // заменить на onCancelClick
-      onCancelClick: this.#handleCancelButtonClick,
+      onFormSubmit: this.#handelEditFormSubmit,
+      onDeleteClick: this.#handleDeleteClick,
+      onCancelClick: this.#handleCancelClick, // изменение состояния кнопки
+      onNewFromSubmit: this.#handelNewFormSubmit,
+      onAddNewButtonClick: this.#handleNewPointButtonEvent,
     });
 
-    render(this.#pointComponent, this.#pointContainer);
+    // поставить в самое первое положение
+    render(this.#newPointComponent, this.#pointContainer);
     this.#mode = Mode.EDITING;
   }
 
   init(point) {
     // проверяем наличие id. Если есть, то отрисовываем как нормальнгую точк, если нет - то как новую
     this.#pointData = point;
-    if (this.#pointData.id !== '') {
-      this.renderPoint();
+    console.log('------');
+    console.log(this.#pointData);
+    console.log(this.isNewPoint)
+
+    // this.#isPointNew = this.#pointData.id === '' ? true : false;
+
+    if(this.isNewPoint) {
+      console.log('-+-+-+-');
+
+      this.renderNewPoint();
+
       return;
     }
-    this.renderNewPoint();
+
+    this.renderPoint();
+
   }
 }
