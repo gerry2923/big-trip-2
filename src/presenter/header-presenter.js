@@ -94,7 +94,7 @@ export default class HeaderPresenter {
 
   // предполагается, что компоненты обновляются только при создании и редактировании
   toggleAddPointButtonState() {
-    this.#newButtonComponent.element.disabled = this.#newButtonComponent.element.disabled ? false : true;
+    this.#newButtonComponent.element.disabled = !this.#newButtonComponent.element.disabled;
   }
 
   init() {

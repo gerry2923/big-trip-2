@@ -1,13 +1,12 @@
 import { render, remove } from '../framework/render';
 import { FilterTypes, SortTypes, UpdateType, UserAction } from '../const';
-import { sortDurationDown, sortPriceDown } from '../utils/point';
+import { sortDurationDown, sortPriceDown, sortClosestDayFirst } from '../utils/point';
 import { filter } from '../utils/filter';
 
 import SortView from '../view/sort-view/sort-view';
 import PointListView from '../view/point-list-view/point-list-view';
 import PointListItemView from '../view/point-list-item-view/point-list-item-view';
 import PointPresenter from './point-presenter';
-import NewPointPresenter from './_new-point-presenter';
 import NoPointView from '../view/no-point-view/no-point-view';
 import { nanoid } from 'nanoid';
 
@@ -34,9 +33,28 @@ export default class MainPresenter {
 
   #newPointEventHandler = null;
 
+  #printPPIds = () => {
+    console.log('-----------');
+    this.#pointPresenters.forEach((presenter) => console.log(presenter.presenterId));
+    console.log('---  ----  --');
+  };
+
+  #removePresenter = (presenter) => {
+    this.#pointPresenters.delete(presenter.presenterId);
+    this.#pointPresenters.forEach((presenter) => console.log(presenter.presenterId));
+  };
+
+  // если нажали на какую-нибудь кнопку при открытой форме редактирования
   #handleModeChange = () => {
-    this.#pointPresenters.forEach((presenter) =>
-      presenter.resetView());
+    this.#pointPresenters.forEach((presenter) => {
+      if (presenter.isNewPoint) {
+        presenter.destroy();
+        this.#pointPresenters.delete(presenter.presenterId);
+        this.this.#printPPIds();
+        this.#newPointEventHandler();
+      }
+      presenter.resetView();
+    });
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -66,9 +84,11 @@ export default class MainPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        console.log('очистить все точки и перерисовать заново все точки маршрута');
+        console.log('очистить все точки и перерисовать заново все точки маршрута, сортировка оставется');
         this.clearMainPage(false); // устновим занчениек resetSortType в false
         this.init();
+        // !!!!!!!!!!!!!!!!!!!!!!!!!! удалить printPPIds()!!!!!!!!!!!!!
+        this.#printPPIds();
         break;
       case UpdateType.MAJOR:
         console.log('очистить все точки, сбросить сортировку');
@@ -95,7 +115,7 @@ export default class MainPresenter {
   };
 
 
-  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations, onNewPointChange}) {
+  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations, onNewPointChange }) {
     this.#mainContainer = mainContainer;
     this.#filtersModel = filtersModel;
     this.#pointsModel = pointsModel;
@@ -131,20 +151,25 @@ export default class MainPresenter {
 
     switch (this.#currentSortType) {
       case SortTypes.PRICE:
+        console.log('Price')
         return filteredPoints.sort(sortPriceDown);
       case SortTypes.TIME:
+        console.log('Time')
         return filteredPoints.sort(sortDurationDown);
-
+      case SortTypes.DAY:
+        console.log('Day')
+        return filteredPoints.sort(sortClosestDayFirst);;
     }
-    return filteredPoints;
+    // return filteredPoints;
   }
 
   // TODO !!!
   createPoint() {
+    this.#handleModeChange();
 
     //  * 1. создать пустой шаблон данных
     const BLANK_POINT = {
-      id: '',
+      id: nanoid(),
       basePrice: 0,
       dateFrom: '',
       dateTo: '',
@@ -169,22 +194,16 @@ export default class MainPresenter {
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
       onAddNewButtonChange: this.#newPointEventHandler,
+      removePresenter: this.#removePresenter,
     });
 
     this.#newPointPresenter.isNewPoint = true;
     // нужно передать id, чтобы в презентере был презентер с id
     // c) инициировали и отрисовали точку
-    this.#newPointPresenter.init({...BLANK_POINT, ...{id: nanoid()}});
+    // this.#newPointPresenter.init({...BLANK_POINT, ...{id: nanoid()}});
+    this.#newPointPresenter.init({ ...BLANK_POINT });
 
-    // this.#pointPresenters.set(BLANK_POINT.id, this.#pointPresenter);
-
-    //  * 3. в новой точке отрисовываем сначала форму редактирования
-    //  * 4. При закрытии формы
-    //  *      - разблокировать кнопку new
-    //  *      - Если точку не сохранили, то удаляем этот презентер
-    //  *      - Если точку сохранили, до добавляем его в сет презентеров
-    //  *
-    //  * !! проверь еще раз нужен ли презентер для кнопки "Добавить новую точку" ?
+    this.#pointPresenters.set(BLANK_POINT.id, this.#newPointPresenter);
 
     console.log('создаем новую точку');
   }
@@ -223,6 +242,7 @@ export default class MainPresenter {
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
       onNewPointStateChange: this.#newPointEventHandler,
+      removePresenter: this.#removePresenter,
     });
     // 3.3. инициировали и отрисовали точку
     this.#pointPresenter.init(pointItem);
@@ -238,7 +258,7 @@ export default class MainPresenter {
 
   /** Основная задача удалить все презентеры, которые привязаны к старым данным */
   clearMainPage(resetSortType = true) {
-     console.log(`point presenter size = ${this.#pointPresenters.size}`)
+    console.log(`point presenter size = ${this.#pointPresenters.size}`);
     // удалить презентеры для создания точки маршрута по данным и точки редактирования
     this.#pointPresenters.forEach((pointPresenter) => pointPresenter.destroy());
     // удалить все презентеры из сета презентеров
@@ -275,7 +295,7 @@ export default class MainPresenter {
       this.renderNoPoint();
       return;
     }
-    console.log('перерисовка');
+
     this.renderSort();
     this.renderList(points);
   }
