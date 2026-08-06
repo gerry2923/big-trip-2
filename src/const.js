@@ -13,7 +13,7 @@ export const FilterTypes = {
   PAST: 'past',
 };
 
-export const SortType = {
+export const SortTypes = {
   DAY: 'day',
   PRICE: 'price',
   TIME: 'duration',

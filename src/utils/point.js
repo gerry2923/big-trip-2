@@ -13,22 +13,37 @@ export const updateItem = (items, updatePoint) => items.map((item) => item.id ==
 
 // Функция помещает задачи без даты в конце списка,
 // возвращая нужный вес для колбэка sort
+// function getWeightForNullDate(dateA, dateB) {
+//   if (dateA === null && dateB === null) {
+//     return 0;
+//   }
+
+//   if (dateA === null) {
+//     return 1;
+//   }
+
+//   if (dateB === null) {
+//     return -1;
+//   }
+
+//   return null;
+// }
+
 function getWeightForNullDate(dateA, dateB) {
-  if (dateA === null && dateB === null) {
+  if (dateA === '' && dateB === '') {
     return 0;
   }
 
-  if (dateA === null) {
+  if (dateA === '') {
     return 1;
   }
 
-  if (dateB === null) {
+  if (dateB === '') {
     return -1;
   }
 
   return null;
 }
-
 
 export const sortPriceDown = (pointA, pointB) => pointB.basePrice - pointA.basePrice;
 
@@ -39,9 +54,13 @@ export const sortDurationDown = (pointA, pointB) => {
 };
 
 export const sortClosestDayFirst = (pointA, pointB) => {
+
   const weight = getWeightForNullDate(pointA.dateFrom, pointB.dateFrom);
-  return weight ?? dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
+  const dateAMs = dayjs(pointA.dateFrom).valueOf();
+  const dateBMs = dayjs(pointB.dateFrom).valueOf();
+  return weight ?? (dateAMs - dateBMs);
 };
+
 
 export const getAllOffersByType = (offers, type = 'flight') => {
   const isValid = !!offers.length && Array.isArray(offers) && typeof type === 'string';

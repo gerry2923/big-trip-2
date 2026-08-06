@@ -14,8 +14,8 @@ const tripPoint = [
   {
     id: 'f4b62099-293f-4c3d-a702-94eec4a2808c',
     basePrice: 1100,
-    dateFrom: '2026-02-05T22:55:56.845Z',
-    dateTo: '2026-02-06T11:22:13.375Z',
+    dateFrom: '2026-07-31T15:45:10.250Z',
+    dateTo: '2026-08-15T11:20:05.999Z',
     destination: 'b2c3d4e5-f6g7-8901-bcde-f23456789012',
     isFavorite: false,
     offers: [
@@ -66,8 +66,8 @@ const tripPoint = [
   {
     id: 'i7e953cc-5c6i-7f6g-d035-c7hhf7d5b13f',
     basePrice: 2200,
-    dateFrom: '2019-07-15T14:20:10.456Z',
-    dateTo: '2019-07-18T09:15:33.789Z',
+    dateFrom: '2026-07-26T06:00:00.000Z',
+    dateTo: '2026-07-27T18:00:00.000Z',
     destination: 'd4e5f6g7-h8i9-0123-def0-456789012345',
     isFavorite: true,
     offers: ['n4o5p6q7-r8s9-0123-nOpQ-456789012345'],
@@ -75,9 +75,9 @@ const tripPoint = [
   },
   {
     id: 'j8f064dd-6d7j-8g7h-e146-d8iig8e6c24g',
-    basePrice: 950,
-    dateFrom: '2026-02-20T16:45:30.234Z',
-    dateTo: '2026-02-20T19:10:15.567Z',
+    basePrice: 750,
+    dateFrom: '2026-11-14T16:22:33.111Z',
+    dateTo: '2026-12-02T09:05:17.555Z',
     destination: 'e5f6g7h8-i9j0-1234-ef01-567890123456',
     isFavorite: false,
     offers: [

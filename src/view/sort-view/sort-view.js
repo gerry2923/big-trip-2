@@ -6,9 +6,8 @@ export default class SortView extends AbstractView {
   #currentSortType = null;
 
   #sortTypeChange = (evt) => {
-
     // делаем проверку на что мы кликнули. Должен быть тэг A
-    if(evt.target.tagName !== 'LABEL') {
+    if(evt.target.tagName !== 'LABEL' || !evt.target.hasAttribute('data-sort-type')) {
       return;
     }
 

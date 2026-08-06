@@ -1,24 +1,59 @@
 import FilterView from '../view/filter-view/filter-view';
-import { render } from '../framework/render';
-import { FilterTypes } from '../const';
+import { render, replace, remove } from '../framework/render';
+import { UpdateType } from '../const';
+
+/**
+ * устанавливает обработчик на модель фильтра и точек
+ * реализует отрисовку фильтров
+ */
 
 export default class FilterPresenter {
-    #headerContainer = null;
-    #filterComponent = null;
-    #isListEmpty = false;
+  #filterContainer = null;
+  #filterComponent = null;
+  #filtersModel = null;
+  #pointsModel = null;
 
-    constructor({headerContainer, isListEmpty = false}) {
-      this.#headerContainer = headerContainer;
-      this.#isListEmpty = isListEmpty;
+  #handleModelEvent = () => {
+    this.init();
+  };
+
+  #handleFilterTypeChange = (filterType) => {
+    if(this.#filtersModel.filter === filterType) {
+      return;
+    }
+    console.log(`фильтр изменился ${filterType}, значит надо поменять модель`);
+
+    this.#filtersModel.setFilter(UpdateType.MAJOR, filterType);
+  };
+
+  constructor({ headerContainer, filtersModel, pointsModel}) {
+    this.#filterContainer = headerContainer;
+    this.#filtersModel = filtersModel;
+    this.#pointsModel = pointsModel;
+
+    this.#filtersModel.addObserver(this.#handleModelEvent);
+    this.#pointsModel.addObserver(this.#handleModelEvent);
+  }
+
+  #renderFilter() {
+
+    const prevFilterComponent = this.#filterComponent;
+
+    this.#filterComponent = new FilterView({
+      currentfitlerType: this.#filtersModel.filter,
+      onfilterTypeChange: this.#handleFilterTypeChange,
+    });
+
+    if(prevFilterComponent === null) {
+      render(this.#filterComponent, this.#filterContainer);
+      return;
     }
 
-    #renderFilter() {
-      this.#filterComponent = new FilterView({filterTypes: FilterTypes, isDisabled: this.#isListEmpty,});
-      render(this.#filterComponent, this.#headerContainer);
-    }
+    replace(this.#filterComponent, prevFilterComponent);
+    remove(prevFilterComponent);
+  }
 
-    init() {
-      this.#renderFilter();    
-    }
+  init() {
+    this.#renderFilter();
+  }
 }
-

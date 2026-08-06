@@ -3,7 +3,7 @@ import { destinationPoints as destinations } from '../moks/mock-destination';
 import { offers } from '../moks/mock-offers';
 import Observable from '../framework/observable';
 
-const POINTS_NUMBER = 3;
+const POINTS_NUMBER = 7;
 
 /** При извлечении данных с сервера, необходима получить типы и города назначения списком */
 
@@ -77,7 +77,7 @@ export default class PointsModel extends Observable {
     ];
 
     this._notify(updateType);
-    console.log('что-то оудалили');
+    console.log('что-то удалили');
   }
 
 }

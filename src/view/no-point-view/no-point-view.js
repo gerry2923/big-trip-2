@@ -1,12 +1,13 @@
 import AbstractView from '../../framework/view/abstract-view';
-import { createEmptyPointTemplate } from './empty-point-template';
+import { createEmptyPointTemplate } from './no-point-template';
 
 export default class EmptyPointView extends AbstractView{
   #filterType = null;
 
-  constructor(filterType) {
+  constructor({filterType}) {
     super();
     this.#filterType = filterType;
+    console.log(this.#filterType);
   }
 
   get template() {

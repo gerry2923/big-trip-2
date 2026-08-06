@@ -1,25 +1,24 @@
 import { render } from '../framework/render';
-import ButtonNewView from '../view/button-new-view/button-new-view';
-import EmptyPointView from '../view/empty-point-view/empty-point-view';
+import NewButtonView from '../view/add-point-button-view/add-point-button-view';
+import EmptyPointView from '../view/no-point-view/no-point-view';
 import FilterPresenter from './filter-presenter';
 
+
+/** Этот презентер загружает шапку и страницу если данных нет*/
 export default class EmptyPagePresenter {
-  #message = null;
-  #emptyHeader = null;
+
   #headerContainer = null;
   #mainContainer = null;
   #filterPresenter = null;
-  #buttonNewView = null;
+  #newButtonView = null;
   #emptyMain = null;
   #filterType = null;
-  #mode = null;
 
   constructor({ headerContainer, mainContainer, filterType}) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
     this.#filterType = filterType;
-    // this.#message = message; // заменить на filtertype
-    // this.#mode = headerMode;
+
     console.log('ruru');
   }
 
@@ -33,8 +32,8 @@ export default class EmptyPagePresenter {
     this.#filterPresenter = new FilterPresenter({headerContainer: this.#headerContainer, isListEmpty: true});
     this.#filterPresenter.init();
 
-    this.#buttonNewView = new ButtonNewView();
-    render(this.#buttonNewView, this.#headerContainer);
+    this.#newButtonView = new NewButtonView();
+    render(this.#newButtonView, this.#headerContainer);
   }
 
   // полностью не активные кнопки всей страницы
